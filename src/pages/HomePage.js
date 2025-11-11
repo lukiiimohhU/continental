@@ -76,7 +76,7 @@ export default function HomePage() {
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-4" data-testid="game-title">
             Continental
           </h1>
-          <p className="text-lg text-white/60">Juego de cartas clásico de 7 rondas</p>
+          <p className="text-lg text-white/60">made by goyo</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -141,16 +141,16 @@ export default function HomePage() {
         <div className="mt-12 glass-card p-6" data-testid="game-rules-card">
           <h2 className="text-2xl font-bold text-white mb-4">Objetivos por Ronda</h2>
           <div className="text-white/80 space-y-2 text-sm">
-            <p><strong className="text-white">Ronda 1:</strong> 2 tríos de 3 cartas</p>
-            <p><strong className="text-white">Ronda 2:</strong> 1 trío + 1 escalera de 4</p>
-            <p><strong className="text-white">Ronda 3:</strong> 2 escaleras de 4</p>
-            <p><strong className="text-white">Ronda 4:</strong> 3 tríos</p>
-            <p><strong className="text-white">Ronda 5:</strong> 2 tríos + 1 escalera</p>
-            <p><strong className="text-white">Ronda 6:</strong> 1 trío + 2 escaleras</p>
-            <p><strong className="text-white">Ronda 7:</strong> Bajar todas las cartas en un turno</p>
+            <p><strong className="text-white">Ronda 1:</strong> 2 Tríos</p>
+            <p><strong className="text-white">Ronda 2:</strong> 1 Trío + 1 Escalera</p>
+            <p><strong className="text-white">Ronda 3:</strong> 2 Escaleras</p>
+            <p><strong className="text-white">Ronda 4:</strong> 3 Tríos</p>
+            <p><strong className="text-white">Ronda 5:</strong> 2 Tríos + 1 Escalera</p>
+            <p><strong className="text-white">Ronda 6:</strong> 1 Trío + 2 Escaleras</p>
+            <p><strong className="text-white">Ronda 7:</strong> 3 Escaleras + Bajar todas las cartas en un turno</p>
             <p className="mt-4 pt-4 border-t border-white/20">
-              <strong className="text-white">Trío:</strong> 3+ cartas del mismo número | 
-              <strong className="text-white ml-2">Escalera:</strong> 4+ cartas consecutivas del mismo palo
+              <strong className="text-white">Trío:</strong> 3 o más cartas del mismo número | 
+              <strong className="text-white ml-2">Escalera:</strong> 4 o más cartas consecutivas del mismo palo
             </p>
           </div>
         </div>

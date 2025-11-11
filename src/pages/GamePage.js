@@ -404,7 +404,7 @@ export default function GamePage() {
               {gameState.round_requirements.runs.length > 0 && (
                 <span>{gameState.round_requirements.runs.length} Escalera(s)</span>
               )}
-              {gameState.round === 7 && <span>Bajar todo en un turno</span>}
+              {gameState.round === 7 && <span>3 Escaleras + Bajar todo en un turno</span>}
             </div>
           </div>
         </div>

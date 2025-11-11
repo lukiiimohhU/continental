@@ -111,13 +111,13 @@ export const RoundEndScreen = ({
 
 function getRoundObjective(round) {
   const objectives = {
-    1: '2 Tríos de 3 cartas',
-    2: '1 Trío + 1 Escalera de 4',
-    3: '2 Escaleras de 4',
+    1: '2 Tríos',
+    2: '1 Trío + 1 Escalera',
+    3: '2 Escaleras',
     4: '3 Tríos',
     5: '2 Tríos + 1 Escalera',
     6: '1 Trío + 2 Escaleras',
-    7: 'Bajar todas las cartas en un turno'
+    7: '3 Escaleras + Bajar todas las cartas en un turno'
   };
   return objectives[round] || '';
 }

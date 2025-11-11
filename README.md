@@ -1,1 +1,1 @@
-Juego de Continental, 2-10 Jugadores.
+Juego de cartas "Continental" de 2 a 10 jugadores. (FrontEnd)

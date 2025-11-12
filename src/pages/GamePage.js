@@ -169,9 +169,9 @@ export default function GamePage() {
     setSelectedCards([]);
   };
 
-  const toggleCardSelection = (cardId) => {
-    // Don't toggle if we just finished a touch drag
-    if (touchDragActive || longPressTriggered) {
+  const toggleCardSelection = (cardId, bypassGuard = false) => {
+    // Don't toggle if we just finished a touch drag (unless bypassed)
+    if (!bypassGuard && (touchDragActive || longPressTriggered)) {
       return;
     }
 
@@ -411,13 +411,11 @@ export default function GamePage() {
   };
 
   const handleTouchEnd = (e, currentIndex) => {
-    // Always prevent default to avoid text selection and context menu
-    e.preventDefault();
-
     const wasDragging = isDraggingRef.current;
 
     // Prevent click event from firing if we were dragging
     if (wasDragging) {
+      e.preventDefault();
       e.stopPropagation();
     }
 
@@ -475,7 +473,8 @@ export default function GamePage() {
         setDragOverIndex(null);
       }
     } else {
-      // Reset immediately if we weren't dragging (user just tapped)
+      // User just tapped (no long press) - handle card selection here
+      // Don't preventDefault so the click event can fire naturally
       isDraggingRef.current = false;
       draggedCardRef.current = null;
       setTouchStartTime(null);
@@ -484,6 +483,13 @@ export default function GamePage() {
       setTouchDragActive(false);
       setDraggedCard(null);
       setDragOverIndex(null);
+
+      // Since preventDefault blocks onClick, manually trigger selection for quick taps
+      // Use bypassGuard=true to avoid race condition with async state updates
+      const card = gameState.my_hand[currentIndex];
+      if (card) {
+        toggleCardSelection(card.id, true);
+      }
     }
   };
 

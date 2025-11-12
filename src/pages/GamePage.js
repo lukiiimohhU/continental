@@ -30,6 +30,7 @@ export default function GamePage() {
   const longPressTimerRef = useRef(null);
   const resetTimerRef = useRef(null);
   const isDraggingRef = useRef(false); // Ref for synchronous drag state
+  const draggedCardRef = useRef(null); // Ref to persist through re-renders
   const wsRef = useRef(null);
   const playerId = localStorage.getItem('player_id');
 
@@ -349,6 +350,7 @@ export default function GamePage() {
     setDraggedCard(null);
     setDragOverIndex(null);
     isDraggingRef.current = false;
+    draggedCardRef.current = null;
 
     // Start long press timer (500ms)
     longPressTimerRef.current = setTimeout(() => {
@@ -360,11 +362,13 @@ export default function GamePage() {
         navigator.vibrate(50);
       }
 
-      // Activate drag mode - use ref for immediate effect
+      // Activate drag mode - use refs for immediate effect
+      const cardData = { card, index };
       isDraggingRef.current = true;
+      draggedCardRef.current = cardData;
       setLongPressTriggered(true);
       setTouchDragActive(true);
-      setDraggedCard({ card, index });
+      setDraggedCard(cardData);
     }, 500);
   };
 
@@ -430,21 +434,23 @@ export default function GamePage() {
     }
 
     // If we were dragging, handle the drop
-    if (wasDragging && draggedCard) {
+    if (wasDragging && draggedCardRef.current) {
       const dropIndex = dragOverIndex !== null ? dragOverIndex : currentIndex;
+      const draggedCardData = draggedCardRef.current;
 
       // Only reorder if the card was moved to a different position
-      if (draggedCard.index !== dropIndex) {
+      if (draggedCardData.index !== dropIndex) {
         const newHand = [...gameState.my_hand];
-        const [movedCard] = newHand.splice(draggedCard.index, 1);
+        const [movedCard] = newHand.splice(draggedCardData.index, 1);
         newHand.splice(dropIndex, 0, movedCard);
 
         const cardOrder = newHand.map(c => c.id);
         reorderHand(cardOrder);
       }
 
-      // Reset ref immediately
+      // Reset refs immediately
       isDraggingRef.current = false;
+      draggedCardRef.current = null;
 
       // Keep the drag states active briefly to prevent onClick from firing
       resetTimerRef.current = setTimeout(() => {
@@ -459,6 +465,7 @@ export default function GamePage() {
     } else {
       // Reset immediately if we weren't dragging (user just tapped)
       isDraggingRef.current = false;
+      draggedCardRef.current = null;
       setTouchStartTime(null);
       setTouchStartPos(null);
       setLongPressTriggered(false);
@@ -484,6 +491,7 @@ export default function GamePage() {
     }
 
     isDraggingRef.current = false;
+    draggedCardRef.current = null;
     setTouchStartTime(null);
     setTouchStartPos(null);
     setLongPressTriggered(false);

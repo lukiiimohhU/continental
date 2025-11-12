@@ -170,17 +170,19 @@ export default function GamePage() {
   };
 
   const toggleCardSelection = (cardId, bypassGuard = false) => {
+    console.log('🔴 toggleCardSelection called', { cardId, bypassGuard, touchDragActive, longPressTriggered });
     // Don't toggle if we just finished a touch drag (unless bypassed)
     if (!bypassGuard && (touchDragActive || longPressTriggered)) {
+      console.log('🔴 Guard blocked toggle');
       return;
     }
 
     setSelectedCards(prev => {
-      if (prev.includes(cardId)) {
-        return prev.filter(id => id !== cardId);
-      } else {
-        return [...prev, cardId];
-      }
+      const newSelection = prev.includes(cardId)
+        ? prev.filter(id => id !== cardId)
+        : [...prev, cardId];
+      console.log('🔴 selectedCards updated', { prev, newSelection });
+      return newSelection;
     });
   };
 
@@ -325,6 +327,7 @@ export default function GamePage() {
 
   // Touch handlers for mobile drag & drop
   const handleTouchStart = (e, card, index) => {
+    console.log('🟠 handleTouchStart', { cardId: card.id, index });
     // Prevent text selection and context menu
     e.preventDefault();
 
@@ -411,6 +414,7 @@ export default function GamePage() {
   };
 
   const handleTouchEnd = (e, currentIndex) => {
+    console.log('🔵 handleTouchEnd called', { currentIndex, wasDragging: isDraggingRef.current });
     const wasDragging = isDraggingRef.current;
 
     // Prevent click event from firing if we were dragging
@@ -433,6 +437,7 @@ export default function GamePage() {
 
     // If we were dragging, handle the drop
     if (wasDragging && draggedCardRef.current) {
+      console.log('🟡 Handling drag drop');
       const dropIndex = dragOverIndex !== null ? dragOverIndex : currentIndex;
       const draggedCardData = draggedCardRef.current;
       const actuallyMoved = draggedCardData.index !== dropIndex;
@@ -474,6 +479,7 @@ export default function GamePage() {
       }
     } else {
       // User just tapped (no long press) - handle card selection here
+      console.log('🟢 Quick tap detected - toggling card selection');
       // Don't preventDefault so the click event can fire naturally
       isDraggingRef.current = false;
       draggedCardRef.current = null;
@@ -487,7 +493,9 @@ export default function GamePage() {
       // Since preventDefault blocks onClick, manually trigger selection for quick taps
       // Use bypassGuard=true to avoid race condition with async state updates
       const card = gameState.my_hand[currentIndex];
+      console.log('🟢 Card to toggle:', card);
       if (card) {
+        console.log('🟢 Calling toggleCardSelection for card:', card.id);
         toggleCardSelection(card.id, true);
       }
     }

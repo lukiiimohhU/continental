@@ -500,6 +500,22 @@ export default function GamePage() {
     setDragOverIndex(null);
   };
 
+  // Restore visual states from refs after re-renders (e.g., from WebSocket updates)
+  useEffect(() => {
+    // If refs indicate we're dragging but states are lost, restore them
+    if (isDraggingRef.current) {
+      if (!touchDragActive) {
+        setTouchDragActive(true);
+      }
+      if (!longPressTriggered) {
+        setLongPressTriggered(true);
+      }
+      if (draggedCardRef.current && !draggedCard) {
+        setDraggedCard(draggedCardRef.current);
+      }
+    }
+  }, [gameState, touchDragActive, longPressTriggered, draggedCard]);
+
   // Cleanup timers on unmount
   useEffect(() => {
     return () => {

@@ -36,6 +36,10 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   cursor: pointer;
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
   transition: transform 0.2s, box-shadow 0.2s, border 0.2s;
   position: relative;
   border: 1px solid #e5e5e5;
@@ -139,13 +143,24 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Drag and drop styles */
 .card-dragging {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: grabbing;
+  transition: none !important;
+}
+
+/* Ensure dragging card on touch maintains styles */
+.touch-dragging .card-dragging {
+  opacity: 1 !important;
 }
 
 .card-slot {
   position: relative;
   transition: all 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .card-slot.drag-over {
@@ -165,26 +180,26 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Touch drag styles for mobile */
 .card-slot.touch-dragging {
-  opacity: 0.7;
-  transform: scale(1.1);
+  opacity: 0.9;
+  transform: scale(1.15) !important;
   z-index: 1000;
-  animation: touchDragPulse 0.5s ease-in-out;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  animation: touchDragPulse 0.3s ease-out forwards;
 }
 
 .card-slot.touch-dragging .card-element {
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.4);
-  transform: rotate(5deg);
+  box-shadow: 0 12px 32px rgba(255, 255, 255, 0.5) !important;
+  transform: rotate(5deg) !important;
+  border: 3px solid rgba(59, 130, 246, 0.8) !important;
+  transition: none !important;
 }
 
 @keyframes touchDragPulse {
   0% {
     transform: scale(1);
   }
-  50% {
-    transform: scale(1.15);
-  }
   100% {
-    transform: scale(1.1);
+    transform: scale(1.15);
   }
 }
 
@@ -214,6 +229,11 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(255, 255, 255, 0.02);
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* Card back design (red pattern) */

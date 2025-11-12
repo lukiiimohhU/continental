@@ -26,6 +26,7 @@ export default function GamePage() {
   const [touchStartTime, setTouchStartTime] = useState(null);
   const [longPressTriggered, setLongPressTriggered] = useState(false);
   const [touchDragActive, setTouchDragActive] = useState(false);
+  const [touchStartPos, setTouchStartPos] = useState(null);
   const longPressTimerRef = useRef(null);
   const resetTimerRef = useRef(null);
   const wsRef = useRef(null);
@@ -336,6 +337,10 @@ export default function GamePage() {
       resetTimerRef.current = null;
     }
 
+    // Save initial touch position
+    const touch = e.touches[0];
+    setTouchStartPos({ x: touch.clientX, y: touch.clientY });
+
     // Reset states immediately when starting a new touch
     setTouchStartTime(Date.now());
     setLongPressTriggered(false);
@@ -357,12 +362,20 @@ export default function GamePage() {
   };
 
   const handleTouchMove = (e, currentIndex) => {
-    // Cancel long press timer if user starts moving too early
-    if (!longPressTriggered && longPressTimerRef.current) {
-      const moveThreshold = 10; // pixels
-      const startPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      // Only cancel if significant movement detected
-      clearTimeout(longPressTimerRef.current);
+    // If long press not triggered yet, check if movement exceeds threshold
+    if (!longPressTriggered && longPressTimerRef.current && touchStartPos) {
+      const touch = e.touches[0];
+      const deltaX = Math.abs(touch.clientX - touchStartPos.x);
+      const deltaY = Math.abs(touch.clientY - touchStartPos.y);
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      // Only cancel if user moved more than 15 pixels
+      if (distance > 15) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+        return;
+      }
+      // If movement is small, allow long press to continue
       return;
     }
 
@@ -428,6 +441,7 @@ export default function GamePage() {
       // Keep the drag states active briefly to prevent click event
       resetTimerRef.current = setTimeout(() => {
         setTouchStartTime(null);
+        setTouchStartPos(null);
         setLongPressTriggered(false);
         setTouchDragActive(false);
         setDraggedCard(null);
@@ -437,6 +451,7 @@ export default function GamePage() {
     } else {
       // Reset immediately if we weren't dragging
       setTouchStartTime(null);
+      setTouchStartPos(null);
       setLongPressTriggered(false);
       setTouchDragActive(false);
       setDraggedCard(null);
@@ -460,6 +475,7 @@ export default function GamePage() {
     }
 
     setTouchStartTime(null);
+    setTouchStartPos(null);
     setLongPressTriggered(false);
     setTouchDragActive(false);
     setDraggedCard(null);

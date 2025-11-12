@@ -45,9 +45,12 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid #e5e5e5;
 }
 
-.card-element:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+/* Only apply hover effect on devices with mouse (not touch) */
+@media (hover: hover) and (pointer: fine) {
+  .card-element:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+  }
 }
 
 .card-element.selected {
@@ -83,7 +86,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .card-rank {
-  font-size: 1.2rem;
   position: absolute;
   top: 4px;
   left: 8px;
@@ -98,14 +100,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .card-suit {
-  font-size: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .card-rank-bottom {
-  font-size: 1.2rem;
   position: absolute;
   bottom: 4px;
   right: 8px;

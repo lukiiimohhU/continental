@@ -437,9 +437,10 @@ export default function GamePage() {
     if (wasDragging && draggedCardRef.current) {
       const dropIndex = dragOverIndex !== null ? dragOverIndex : currentIndex;
       const draggedCardData = draggedCardRef.current;
+      const actuallyMoved = draggedCardData.index !== dropIndex;
 
       // Only reorder if the card was moved to a different position
-      if (draggedCardData.index !== dropIndex) {
+      if (actuallyMoved) {
         const newHand = [...gameState.my_hand];
         const [movedCard] = newHand.splice(draggedCardData.index, 1);
         newHand.splice(dropIndex, 0, movedCard);
@@ -452,16 +453,27 @@ export default function GamePage() {
       isDraggingRef.current = false;
       draggedCardRef.current = null;
 
-      // Keep the drag states active briefly to prevent onClick from firing
-      resetTimerRef.current = setTimeout(() => {
+      // Only use timeout if we actually moved the card, otherwise reset immediately
+      if (actuallyMoved) {
+        // Keep the drag states active very briefly to prevent onClick from firing
+        resetTimerRef.current = setTimeout(() => {
+          setTouchStartTime(null);
+          setTouchStartPos(null);
+          setLongPressTriggered(false);
+          setTouchDragActive(false);
+          setDraggedCard(null);
+          setDragOverIndex(null);
+          resetTimerRef.current = null;
+        }, 50);
+      } else {
+        // Reset immediately if card wasn't moved
         setTouchStartTime(null);
         setTouchStartPos(null);
         setLongPressTriggered(false);
         setTouchDragActive(false);
         setDraggedCard(null);
         setDragOverIndex(null);
-        resetTimerRef.current = null;
-      }, 150);
+      }
     } else {
       // Reset immediately if we weren't dragging (user just tapped)
       isDraggingRef.current = false;

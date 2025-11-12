@@ -36,6 +36,10 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   cursor: pointer;
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
   transition: transform 0.2s, box-shadow 0.2s, border 0.2s;
   position: relative;
   border: 1px solid #e5e5e5;
@@ -152,6 +156,11 @@ h1, h2, h3, h4, h5, h6 {
 .card-slot {
   position: relative;
   transition: all 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .card-slot.drag-over {
@@ -220,6 +229,11 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(255, 255, 255, 0.02);
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* Card back design (red pattern) */

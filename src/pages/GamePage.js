@@ -321,6 +321,9 @@ export default function GamePage() {
 
   // Touch handlers for mobile drag & drop
   const handleTouchStart = (e, card, index) => {
+    // Prevent text selection and context menu
+    e.preventDefault();
+
     // Clear any existing timer
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
@@ -331,9 +334,6 @@ export default function GamePage() {
 
     // Start long press timer (500ms)
     longPressTimerRef.current = setTimeout(() => {
-      // Prevent default to avoid triggering click events
-      e.preventDefault?.();
-
       // Trigger haptic feedback if available
       if (navigator.vibrate) {
         navigator.vibrate(50);
@@ -342,9 +342,6 @@ export default function GamePage() {
       setLongPressTriggered(true);
       setTouchDragActive(true);
       setDraggedCard({ card, index });
-
-      // Short toast that doesn't steal focus
-      toast.info('Mueve la carta', { duration: 1000 });
     }, 500);
   };
 
@@ -384,9 +381,11 @@ export default function GamePage() {
   const handleTouchEnd = (e, currentIndex) => {
     const wasDragging = longPressTriggered && touchDragActive;
 
+    // Always prevent default to avoid text selection and context menu
+    e.preventDefault();
+
     // Prevent click event from firing if we were dragging
     if (wasDragging) {
-      e.preventDefault();
       e.stopPropagation();
     }
 
@@ -406,8 +405,6 @@ export default function GamePage() {
 
         const cardOrder = newHand.map(c => c.id);
         reorderHand(cardOrder);
-
-        toast.success('Carta reordenada', { duration: 1000 });
       }
 
       // Keep the drag states active briefly to prevent click event
@@ -428,7 +425,10 @@ export default function GamePage() {
     }
   };
 
-  const handleTouchCancel = () => {
+  const handleTouchCancel = (e) => {
+    // Prevent default behavior
+    e?.preventDefault();
+
     // Clear timer and reset states if touch is cancelled
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
@@ -824,6 +824,7 @@ export default function GamePage() {
                   handleTouchEnd(e, index);
                 }}
                 onTouchCancel={handleTouchCancel}
+                onContextMenu={(e) => e.preventDefault()}
                 className={`card-slot ${dragOverIndex === index ? 'drag-over' : ''} ${
                   touchDragActive && draggedCard?.index === index ? 'touch-dragging' : ''
                 }`}

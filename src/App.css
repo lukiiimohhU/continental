@@ -163,6 +163,49 @@ h1, h2, h3, h4, h5, h6 {
   pointer-events: none;
 }
 
+/* Touch drag styles for mobile */
+.card-slot.touch-dragging {
+  opacity: 0.7;
+  transform: scale(1.1);
+  z-index: 1000;
+  animation: touchDragPulse 0.5s ease-in-out;
+}
+
+.card-slot.touch-dragging .card-element {
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.4);
+  transform: rotate(5deg);
+}
+
+@keyframes touchDragPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+/* Improve touch targets for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .card-element {
+    /* Larger touch targets on mobile */
+    touch-action: none;
+  }
+
+  .card-slot {
+    /* Add some extra padding for easier touch interactions */
+    padding: 2px;
+  }
+
+  .card-grid {
+    /* Larger gaps on mobile for easier dragging */
+    gap: 16px;
+  }
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));

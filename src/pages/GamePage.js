@@ -23,6 +23,10 @@ export default function GamePage() {
   const [showPlaceCardPopup, setShowPlaceCardPopup] = useState(false);
   const [cardToPlace, setCardToPlace] = useState(null);
   const [roomData, setRoomData] = useState(null);
+  const [touchStartTime, setTouchStartTime] = useState(null);
+  const [longPressTriggered, setLongPressTriggered] = useState(false);
+  const [touchDragActive, setTouchDragActive] = useState(false);
+  const longPressTimerRef = useRef(null);
   const wsRef = useRef(null);
   const playerId = localStorage.getItem('player_id');
 
@@ -309,6 +313,107 @@ export default function GamePage() {
     setDraggedCard(null);
     setDragOverIndex(null);
   };
+
+  // Touch handlers for mobile drag & drop
+  const handleTouchStart = (e, card, index) => {
+    // Clear any existing timer
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+
+    setTouchStartTime(Date.now());
+    setLongPressTriggered(false);
+
+    // Start long press timer (500ms)
+    longPressTimerRef.current = setTimeout(() => {
+      // Trigger haptic feedback if available
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+
+      setLongPressTriggered(true);
+      setTouchDragActive(true);
+      setDraggedCard({ card, index });
+      toast.info('Arrastra la carta para reordenar');
+    }, 500);
+  };
+
+  const handleTouchMove = (e, currentIndex) => {
+    if (!longPressTriggered || !touchDragActive) {
+      // Cancel long press if user moves before time is up
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
+      return;
+    }
+
+    // Prevent scrolling while dragging
+    e.preventDefault();
+
+    const touch = e.touches[0];
+    const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+
+    // Find the card-slot element
+    const cardSlot = elementAtPoint?.closest('.card-slot');
+    if (cardSlot) {
+      const allSlots = Array.from(document.querySelectorAll('.card-slot'));
+      const dropIndex = allSlots.indexOf(cardSlot);
+
+      if (dropIndex !== -1 && dropIndex !== currentIndex) {
+        setDragOverIndex(dropIndex);
+      }
+    }
+  };
+
+  const handleTouchEnd = (e, currentIndex) => {
+    // Clear long press timer
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+
+    // If long press was triggered and we're dragging
+    if (longPressTriggered && touchDragActive && draggedCard) {
+      const dropIndex = dragOverIndex !== null ? dragOverIndex : currentIndex;
+
+      if (draggedCard.index !== dropIndex) {
+        const newHand = [...gameState.my_hand];
+        const [movedCard] = newHand.splice(draggedCard.index, 1);
+        newHand.splice(dropIndex, 0, movedCard);
+
+        const cardOrder = newHand.map(c => c.id);
+        reorderHand(cardOrder);
+      }
+    }
+
+    // Reset all touch states
+    setTouchStartTime(null);
+    setLongPressTriggered(false);
+    setTouchDragActive(false);
+    setDraggedCard(null);
+    setDragOverIndex(null);
+  };
+
+  const handleTouchCancel = () => {
+    // Clear timer and reset states if touch is cancelled
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+
+    setTouchStartTime(null);
+    setLongPressTriggered(false);
+    setTouchDragActive(false);
+    setDraggedCard(null);
+    setDragOverIndex(null);
+  };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
+    };
+  }, []);
 
   const isMyTurn = () => {
     return gameState?.current_player_id === playerId;
@@ -674,7 +779,13 @@ export default function GamePage() {
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
-                className={`card-slot ${dragOverIndex === index ? 'drag-over' : ''}`}
+                onTouchStart={(e) => handleTouchStart(e, card, index)}
+                onTouchMove={(e) => handleTouchMove(e, index)}
+                onTouchEnd={(e) => handleTouchEnd(e, index)}
+                onTouchCancel={handleTouchCancel}
+                className={`card-slot ${dragOverIndex === index ? 'drag-over' : ''} ${
+                  touchDragActive && draggedCard?.index === index ? 'touch-dragging' : ''
+                }`}
               >
                 <Card
                   card={card}

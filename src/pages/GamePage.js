@@ -29,6 +29,7 @@ export default function GamePage() {
   const [touchStartPos, setTouchStartPos] = useState(null);
   const longPressTimerRef = useRef(null);
   const resetTimerRef = useRef(null);
+  const isDraggingRef = useRef(false); // Ref for synchronous drag state
   const wsRef = useRef(null);
   const playerId = localStorage.getItem('player_id');
 
@@ -347,6 +348,7 @@ export default function GamePage() {
     setTouchDragActive(false);
     setDraggedCard(null);
     setDragOverIndex(null);
+    isDraggingRef.current = false;
 
     // Start long press timer (500ms)
     longPressTimerRef.current = setTimeout(() => {
@@ -358,7 +360,8 @@ export default function GamePage() {
         navigator.vibrate(50);
       }
 
-      // Activate drag mode - these states will remain true until touchEnd
+      // Activate drag mode - use ref for immediate effect
+      isDraggingRef.current = true;
       setLongPressTriggered(true);
       setTouchDragActive(true);
       setDraggedCard({ card, index });
@@ -366,8 +369,8 @@ export default function GamePage() {
   };
 
   const handleTouchMove = (e, currentIndex) => {
-    // If drag is active, handle dragging
-    if (longPressTriggered && touchDragActive) {
+    // Check ref first for immediate response
+    if (isDraggingRef.current) {
       // Prevent scrolling while dragging
       e.preventDefault();
       e.stopPropagation();
@@ -407,7 +410,7 @@ export default function GamePage() {
     // Always prevent default to avoid text selection and context menu
     e.preventDefault();
 
-    const wasDragging = longPressTriggered && touchDragActive;
+    const wasDragging = isDraggingRef.current;
 
     // Prevent click event from firing if we were dragging
     if (wasDragging) {
@@ -440,6 +443,9 @@ export default function GamePage() {
         reorderHand(cardOrder);
       }
 
+      // Reset ref immediately
+      isDraggingRef.current = false;
+
       // Keep the drag states active briefly to prevent onClick from firing
       resetTimerRef.current = setTimeout(() => {
         setTouchStartTime(null);
@@ -452,6 +458,7 @@ export default function GamePage() {
       }, 150);
     } else {
       // Reset immediately if we weren't dragging (user just tapped)
+      isDraggingRef.current = false;
       setTouchStartTime(null);
       setTouchStartPos(null);
       setLongPressTriggered(false);
@@ -476,6 +483,7 @@ export default function GamePage() {
       resetTimerRef.current = null;
     }
 
+    isDraggingRef.current = false;
     setTouchStartTime(null);
     setTouchStartPos(null);
     setLongPressTriggered(false);

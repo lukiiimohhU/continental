@@ -326,7 +326,7 @@ export default function GamePage() {
     // Prevent text selection and context menu
     e.preventDefault();
 
-    // Clear any existing timers
+    // Clear any existing timers (important!)
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
       longPressTimerRef.current = null;
@@ -350,11 +350,15 @@ export default function GamePage() {
 
     // Start long press timer (500ms)
     longPressTimerRef.current = setTimeout(() => {
+      // Clear the timer reference immediately
+      longPressTimerRef.current = null;
+
       // Trigger haptic feedback if available
       if (navigator.vibrate) {
         navigator.vibrate(50);
       }
 
+      // Activate drag mode - these states will remain true until touchEnd
       setLongPressTriggered(true);
       setTouchDragActive(true);
       setDraggedCard({ card, index });
@@ -362,8 +366,30 @@ export default function GamePage() {
   };
 
   const handleTouchMove = (e, currentIndex) => {
+    // If drag is active, handle dragging
+    if (longPressTriggered && touchDragActive) {
+      // Prevent scrolling while dragging
+      e.preventDefault();
+      e.stopPropagation();
+
+      const touch = e.touches[0];
+      const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+
+      // Find the card-slot element
+      const cardSlot = elementAtPoint?.closest('.card-slot');
+      if (cardSlot) {
+        const allSlots = Array.from(document.querySelectorAll('.card-slot'));
+        const dropIndex = allSlots.indexOf(cardSlot);
+
+        if (dropIndex !== -1 && dropIndex !== currentIndex) {
+          setDragOverIndex(dropIndex);
+        }
+      }
+      return;
+    }
+
     // If long press not triggered yet, check if movement exceeds threshold
-    if (!longPressTriggered && longPressTimerRef.current && touchStartPos) {
+    if (longPressTimerRef.current && touchStartPos) {
       const touch = e.touches[0];
       const deltaX = Math.abs(touch.clientX - touchStartPos.x);
       const deltaY = Math.abs(touch.clientY - touchStartPos.y);
@@ -373,47 +399,22 @@ export default function GamePage() {
       if (distance > 15) {
         clearTimeout(longPressTimerRef.current);
         longPressTimerRef.current = null;
-        return;
-      }
-      // If movement is small, allow long press to continue
-      return;
-    }
-
-    if (!longPressTriggered || !touchDragActive) {
-      return;
-    }
-
-    // Prevent scrolling while dragging
-    e.preventDefault();
-    e.stopPropagation();
-
-    const touch = e.touches[0];
-    const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
-
-    // Find the card-slot element
-    const cardSlot = elementAtPoint?.closest('.card-slot');
-    if (cardSlot) {
-      const allSlots = Array.from(document.querySelectorAll('.card-slot'));
-      const dropIndex = allSlots.indexOf(cardSlot);
-
-      if (dropIndex !== -1 && dropIndex !== currentIndex) {
-        setDragOverIndex(dropIndex);
       }
     }
   };
 
   const handleTouchEnd = (e, currentIndex) => {
-    const wasDragging = longPressTriggered && touchDragActive;
-
     // Always prevent default to avoid text selection and context menu
     e.preventDefault();
+
+    const wasDragging = longPressTriggered && touchDragActive;
 
     // Prevent click event from firing if we were dragging
     if (wasDragging) {
       e.stopPropagation();
     }
 
-    // Clear long press timer
+    // Clear long press timer if it's still running
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
       longPressTimerRef.current = null;
@@ -425,10 +426,11 @@ export default function GamePage() {
       resetTimerRef.current = null;
     }
 
-    // If long press was triggered and we're dragging
+    // If we were dragging, handle the drop
     if (wasDragging && draggedCard) {
       const dropIndex = dragOverIndex !== null ? dragOverIndex : currentIndex;
 
+      // Only reorder if the card was moved to a different position
       if (draggedCard.index !== dropIndex) {
         const newHand = [...gameState.my_hand];
         const [movedCard] = newHand.splice(draggedCard.index, 1);
@@ -438,7 +440,7 @@ export default function GamePage() {
         reorderHand(cardOrder);
       }
 
-      // Keep the drag states active briefly to prevent click event
+      // Keep the drag states active briefly to prevent onClick from firing
       resetTimerRef.current = setTimeout(() => {
         setTouchStartTime(null);
         setTouchStartPos(null);
@@ -447,9 +449,9 @@ export default function GamePage() {
         setDraggedCard(null);
         setDragOverIndex(null);
         resetTimerRef.current = null;
-      }, 100);
+      }, 150);
     } else {
-      // Reset immediately if we weren't dragging
+      // Reset immediately if we weren't dragging (user just tapped)
       setTouchStartTime(null);
       setTouchStartPos(null);
       setLongPressTriggered(false);

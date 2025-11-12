@@ -27,6 +27,7 @@ export default function GamePage() {
   const [longPressTriggered, setLongPressTriggered] = useState(false);
   const [touchDragActive, setTouchDragActive] = useState(false);
   const longPressTimerRef = useRef(null);
+  const resetTimerRef = useRef(null);
   const wsRef = useRef(null);
   const playerId = localStorage.getItem('player_id');
 
@@ -324,13 +325,23 @@ export default function GamePage() {
     // Prevent text selection and context menu
     e.preventDefault();
 
-    // Clear any existing timer
+    // Clear any existing timers
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
     }
 
+    if (resetTimerRef.current) {
+      clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = null;
+    }
+
+    // Reset states immediately when starting a new touch
     setTouchStartTime(Date.now());
     setLongPressTriggered(false);
+    setTouchDragActive(false);
+    setDraggedCard(null);
+    setDragOverIndex(null);
 
     // Start long press timer (500ms)
     longPressTimerRef.current = setTimeout(() => {
@@ -392,6 +403,13 @@ export default function GamePage() {
     // Clear long press timer
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+
+    // Clear any pending reset timer
+    if (resetTimerRef.current) {
+      clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = null;
     }
 
     // If long press was triggered and we're dragging
@@ -408,12 +426,13 @@ export default function GamePage() {
       }
 
       // Keep the drag states active briefly to prevent click event
-      setTimeout(() => {
+      resetTimerRef.current = setTimeout(() => {
         setTouchStartTime(null);
         setLongPressTriggered(false);
         setTouchDragActive(false);
         setDraggedCard(null);
         setDragOverIndex(null);
+        resetTimerRef.current = null;
       }, 100);
     } else {
       // Reset immediately if we weren't dragging
@@ -429,9 +448,15 @@ export default function GamePage() {
     // Prevent default behavior
     e?.preventDefault();
 
-    // Clear timer and reset states if touch is cancelled
+    // Clear timers and reset states if touch is cancelled
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+
+    if (resetTimerRef.current) {
+      clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = null;
     }
 
     setTouchStartTime(null);
@@ -441,11 +466,14 @@ export default function GamePage() {
     setDragOverIndex(null);
   };
 
-  // Cleanup timer on unmount
+  // Cleanup timers on unmount
   useEffect(() => {
     return () => {
       if (longPressTimerRef.current) {
         clearTimeout(longPressTimerRef.current);
+      }
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current);
       }
     };
   }, []);

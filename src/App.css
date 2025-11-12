@@ -52,8 +52,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .card-element.selected {
   transform: translateY(-16px);
-  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
-  border: 3px solid #ffffff;
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.6);
+  border: 3px solid #22c55e;
 }
 
 .card-red {

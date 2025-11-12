@@ -166,6 +166,11 @@ export default function GamePage() {
   };
 
   const toggleCardSelection = (cardId) => {
+    // Don't toggle if we just finished a touch drag
+    if (touchDragActive || longPressTriggered) {
+      return;
+    }
+
     setSelectedCards(prev => {
       if (prev.includes(cardId)) {
         return prev.filter(id => id !== cardId);
@@ -326,6 +331,9 @@ export default function GamePage() {
 
     // Start long press timer (500ms)
     longPressTimerRef.current = setTimeout(() => {
+      // Prevent default to avoid triggering click events
+      e.preventDefault?.();
+
       // Trigger haptic feedback if available
       if (navigator.vibrate) {
         navigator.vibrate(50);
@@ -334,21 +342,29 @@ export default function GamePage() {
       setLongPressTriggered(true);
       setTouchDragActive(true);
       setDraggedCard({ card, index });
-      toast.info('Arrastra la carta para reordenar');
+
+      // Short toast that doesn't steal focus
+      toast.info('Mueve la carta', { duration: 1000 });
     }, 500);
   };
 
   const handleTouchMove = (e, currentIndex) => {
+    // Cancel long press timer if user starts moving too early
+    if (!longPressTriggered && longPressTimerRef.current) {
+      const moveThreshold = 10; // pixels
+      const startPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      // Only cancel if significant movement detected
+      clearTimeout(longPressTimerRef.current);
+      return;
+    }
+
     if (!longPressTriggered || !touchDragActive) {
-      // Cancel long press if user moves before time is up
-      if (longPressTimerRef.current) {
-        clearTimeout(longPressTimerRef.current);
-      }
       return;
     }
 
     // Prevent scrolling while dragging
     e.preventDefault();
+    e.stopPropagation();
 
     const touch = e.touches[0];
     const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -366,13 +382,21 @@ export default function GamePage() {
   };
 
   const handleTouchEnd = (e, currentIndex) => {
+    const wasDragging = longPressTriggered && touchDragActive;
+
+    // Prevent click event from firing if we were dragging
+    if (wasDragging) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     // Clear long press timer
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
     }
 
     // If long press was triggered and we're dragging
-    if (longPressTriggered && touchDragActive && draggedCard) {
+    if (wasDragging && draggedCard) {
       const dropIndex = dragOverIndex !== null ? dragOverIndex : currentIndex;
 
       if (draggedCard.index !== dropIndex) {
@@ -382,15 +406,26 @@ export default function GamePage() {
 
         const cardOrder = newHand.map(c => c.id);
         reorderHand(cardOrder);
-      }
-    }
 
-    // Reset all touch states
-    setTouchStartTime(null);
-    setLongPressTriggered(false);
-    setTouchDragActive(false);
-    setDraggedCard(null);
-    setDragOverIndex(null);
+        toast.success('Carta reordenada', { duration: 1000 });
+      }
+
+      // Keep the drag states active briefly to prevent click event
+      setTimeout(() => {
+        setTouchStartTime(null);
+        setLongPressTriggered(false);
+        setTouchDragActive(false);
+        setDraggedCard(null);
+        setDragOverIndex(null);
+      }, 100);
+    } else {
+      // Reset immediately if we weren't dragging
+      setTouchStartTime(null);
+      setLongPressTriggered(false);
+      setTouchDragActive(false);
+      setDraggedCard(null);
+      setDragOverIndex(null);
+    }
   };
 
   const handleTouchCancel = () => {
@@ -779,9 +814,15 @@ export default function GamePage() {
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
-                onTouchStart={(e) => handleTouchStart(e, card, index)}
-                onTouchMove={(e) => handleTouchMove(e, index)}
-                onTouchEnd={(e) => handleTouchEnd(e, index)}
+                onTouchStart={(e) => {
+                  handleTouchStart(e, card, index);
+                }}
+                onTouchMove={(e) => {
+                  handleTouchMove(e, index);
+                }}
+                onTouchEnd={(e) => {
+                  handleTouchEnd(e, index);
+                }}
                 onTouchCancel={handleTouchCancel}
                 className={`card-slot ${dragOverIndex === index ? 'drag-over' : ''} ${
                   touchDragActive && draggedCard?.index === index ? 'touch-dragging' : ''
@@ -790,7 +831,12 @@ export default function GamePage() {
                 <Card
                   card={card}
                   selected={selectedCards.includes(card.id)}
-                  onClick={() => toggleCardSelection(card.id)}
+                  onClick={(e) => {
+                    // Only allow click if not in touch drag mode
+                    if (!touchDragActive && !longPressTriggered) {
+                      toggleCardSelection(card.id);
+                    }
+                  }}
                   className={draggedCard?.index === index ? 'card-dragging' : ''}
                   data-testid={`card-${card.id}`}
                 />

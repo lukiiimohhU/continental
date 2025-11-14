@@ -48,7 +48,7 @@ export default function GamePage() {
         wsRef.current.close();
       }
     };
-  }, [roomCode, playerId, navigate]);
+  }, [roomCode, playerId, navigate, loadRoomData, connectWebSocket]);
 
   // Timer for 5-second wait period
   useEffect(() => {
@@ -68,7 +68,38 @@ export default function GamePage() {
     }
   }, [gameState?.waiting_for_requests, gameState?.wait_end_time]);
 
-  const loadRoomData = async () => {
+  // Handle visibility change (mobile app switching)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('App became visible - checking WebSocket connection');
+
+        // Check if WebSocket is disconnected or closing
+        if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+          console.log('WebSocket disconnected, reconnecting...');
+
+          // Close old connection if it exists
+          if (wsRef.current) {
+            wsRef.current.close();
+          }
+
+          // Reconnect WebSocket
+          connectWebSocket();
+
+          // Reload room data to sync state
+          loadRoomData();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [roomCode, playerId, connectWebSocket, loadRoomData]);
+
+  const loadRoomData = useCallback(async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/room/${roomCode}`);
       const data = await response.json();
@@ -76,9 +107,9 @@ export default function GamePage() {
     } catch (error) {
       console.error('Error loading room:', error);
     }
-  };
+  }, [roomCode]);
 
-  const connectWebSocket = () => {
+  const connectWebSocket = useCallback(() => {
     const ws = new WebSocket(`${WS_URL}/api/ws/${roomCode}/${playerId}`);
     
     ws.onopen = () => {
@@ -110,7 +141,7 @@ export default function GamePage() {
     };
 
     wsRef.current = ws;
-  };
+  }, [roomCode, playerId]);
 
   const sendAction = (action, data = {}) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {

@@ -3,8 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card as UICard, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ArrowDown, Users, AlertCircle, Timer, Plus } from 'lucide-react';
+import { ArrowDown, Users, AlertCircle, Timer, Plus, ChevronDown } from 'lucide-react';
 import Card from '@/components/Card';
+import FanCards from '@/components/FanCards';
 import PlaceCardPopup from '@/components/PlaceCardPopup';
 import RoundEndScreen from '@/pages/RoundEndScreen';
 
@@ -33,6 +34,10 @@ export default function GamePage() {
   const draggedCardRef = useRef(null); // Ref to persist through re-renders
   const wsRef = useRef(null);
   const playerId = localStorage.getItem('player_id');
+
+  // Mobile UI states
+  const [showOtherPlayers, setShowOtherPlayers] = useState(false);
+  const [showMyMelds, setShowMyMelds] = useState(false);
 
   useEffect(() => {
     if (!playerId) {
@@ -648,36 +653,49 @@ export default function GamePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-4">
+    <div className="min-h-screen bg-black text-white p-2 md:p-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="glass-card p-4 mb-6 flex items-center justify-between" data-testid="game-header">
-          <div>
-            <h1 className="text-2xl font-bold">Continental - Ronda {gameState.round}</h1>
-            <div className="text-sm text-white/60 mt-1">
-              Sala: <code className="text-white">{roomCode}</code>
+        {/* Header - Compact on mobile */}
+        <div className="glass-card p-2 md:p-4 mb-3 md:mb-6" data-testid="game-header">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg md:text-2xl font-bold">Continental - R{gameState.round}</h1>
+              <div className="text-xs md:text-sm text-white/60 mt-1">
+                <code className="text-white">{roomCode}</code>
+              </div>
             </div>
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-white/60">Objetivo de la Ronda:</div>
-            <div className="text-white font-semibold">
-              {gameState.round_requirements.sets.length > 0 && (
-                <span>{gameState.round_requirements.sets.length} Trío(s) </span>
-              )}
-              {gameState.round_requirements.runs.length > 0 && (
-                <span>{gameState.round_requirements.runs.length} Escalera(s)</span>
-              )}
-              {gameState.round === 7 && <span>Bajar todo en un turno</span>}
+            <div className="text-right">
+              <div className="text-xs md:text-sm text-white/60">Objetivo:</div>
+              <div className="text-white text-xs md:text-base font-semibold">
+                {gameState.round_requirements.sets.length > 0 && (
+                  <span>{gameState.round_requirements.sets.length} Trío(s) </span>
+                )}
+                {gameState.round_requirements.runs.length > 0 && (
+                  <span>{gameState.round_requirements.runs.length} Escalera(s)</span>
+                )}
+                {gameState.round === 7 && <span>Bajar todo</span>}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Other Players */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+        {/* Other Players - Collapsible on mobile */}
+        <div className="mb-3 md:mb-6">
+          <div
+            className="md:hidden mobile-section-header"
+            onClick={() => setShowOtherPlayers(!showOtherPlayers)}
+          >
+            <span className="mobile-section-title">
+              Jugadores ({gameState.players.filter(p => p.id !== playerId).length})
+            </span>
+            <ChevronDown className={`h-4 w-4 section-toggle-icon ${showOtherPlayers ? 'rotated' : ''}`} />
+          </div>
+          <div className={`mobile-section-content ${showOtherPlayers ? 'expanded' : ''} md:!max-h-none`}>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4">
           {gameState.players.filter(p => p.id !== playerId).map((player) => (
             <div
               key={player.id}
-              className={`glass-card p-4 ${
+              className={`glass-card p-2 md:p-4 player-card-mobile ${
                 player.id === gameState.current_player_id ? 'ring-2 ring-white' : ''
               }`}
               data-testid={`player-${player.id}`}
@@ -716,24 +734,23 @@ export default function GamePage() {
                 <div className="space-y-2 mt-2">
                   {player.melds.map((meld, idx) => (
                     <div key={idx} className="flex flex-wrap gap-1">
-                      {meld.cards.map((card) => (
-                        <Card
-                          key={card.id}
-                          card={card}
-                          style={{ width: '50px', height: '70px', fontSize: '0.7rem' }}
-                        />
-                      ))}
+                      <FanCards
+                        cards={meld.cards}
+                        meldType={meld.type}
+                      />
                     </div>
                   ))}
                 </div>
               )}
             </div>
           ))}
+            </div>
+          </div>
         </div>
 
-        {/* Game Table */}
-        <div className="game-table mb-6" data-testid="game-table">
-          <div className="flex items-center justify-center gap-8 mb-4">
+        {/* Game Table - More compact on mobile */}
+        <div className="game-table game-table-mobile mb-3 md:mb-6" data-testid="game-table">
+          <div className="flex items-center justify-center gap-4 md:gap-8 mb-4">
             {/* Deck */}
             <div className="text-center">
               <div
@@ -927,7 +944,7 @@ export default function GamePage() {
             </div>
           )}
 
-          <div className="card-grid" data-testid="my-hand">
+          <div className="card-grid card-grid-mobile" data-testid="my-hand">
             {gameState.my_hand && gameState.my_hand.map((card, index) => (
               <div
                 key={card.id}
@@ -968,22 +985,28 @@ export default function GamePage() {
             ))}
           </div>
 
-          {/* My Melds */}
+          {/* My Melds - Collapsible on mobile */}
           {myPlayer?.melds && myPlayer.melds.length > 0 && (
-            <div className="mt-6">
-              <h4 className="text-lg font-semibold text-white mb-3">Tus Combinaciones</h4>
-              <div className="space-y-3">
+            <div className="mt-3 md:mt-6">
+              <div
+                className="md:hidden mobile-section-header"
+                onClick={() => setShowMyMelds(!showMyMelds)}
+              >
+                <span className="mobile-section-title">
+                  Tus Combinaciones ({myPlayer.melds.length})
+                </span>
+                <ChevronDown className={`h-4 w-4 section-toggle-icon ${showMyMelds ? 'rotated' : ''}`} />
+              </div>
+              <h4 className="hidden md:block text-lg font-semibold text-white mb-3">Tus Combinaciones</h4>
+              <div className={`mobile-section-content ${showMyMelds ? 'expanded' : ''} md:!max-h-none space-y-3`}>
                 {myPlayer.melds.map((meld, idx) => (
                   <div key={idx} className="meld-container" data-testid={`my-meld-${idx}`}>
                     <div className="meld-label">{meld.type === 'set' ? 'Trío' : 'Escalera'}</div>
                     <div className="flex flex-wrap gap-2">
-                      {meld.cards.map((card) => (
-                        <Card
-                          key={card.id}
-                          card={card}
-                          style={{ width: '70px', height: '98px' }}
-                        />
-                      ))}
+                      <FanCards
+                        cards={meld.cards}
+                        meldType={meld.type}
+                      />
                     </div>
                   </div>
                 ))}

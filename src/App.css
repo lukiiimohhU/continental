@@ -434,3 +434,162 @@ h1, h2, h3, h4, h5, h6 {
     stroke-dashoffset: 314;
   }
 }
+/* Fan Cards Component - Compact card display for mobile */
+.fan-cards-container {
+  position: relative;
+  height: 70px;
+  cursor: pointer;
+  display: inline-block;
+  min-width: 100px;
+  padding-right: 20px;
+}
+
+.fan-card {
+  position: absolute;
+  top: 0;
+  transition: all 0.2s ease;
+}
+
+.fan-card-mini {
+  width: 35px;
+  height: 50px;
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  padding: 2px;
+}
+
+.fan-card-rank {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.fan-card-suit {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.fan-card-label {
+  position: absolute;
+  bottom: -18px;
+  left: 0;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+
+.expanded-meld {
+  cursor: pointer;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile optimized layout */
+@media (max-width: 768px) {
+  .mobile-section {
+    margin-bottom: 12px;
+  }
+
+  .mobile-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+
+  .mobile-section-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  .mobile-section-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .mobile-section-content.expanded {
+    max-height: 1000px;
+  }
+
+  /* Compact player cards on mobile */
+  .player-card-mobile {
+    padding: 8px !important;
+  }
+
+  .player-card-mobile h3 {
+    font-size: 0.875rem !important;
+  }
+
+  .player-card-mobile .text-sm {
+    font-size: 0.75rem !important;
+  }
+
+  /* Smaller game table on mobile */
+  .game-table-mobile .card-back,
+  .game-table-mobile .discard-area {
+    width: 70px !important;
+    height: 95px !important;
+  }
+
+  .game-table-mobile .card-back .card-count-badge {
+    font-size: 0.875rem !important;
+  }
+
+  /* Compact hand grid on mobile */
+  .card-grid-mobile {
+    grid-template-columns: repeat(auto-fill, minmax(65px, 1fr)) !important;
+    gap: 8px !important;
+    padding: 8px !important;
+  }
+
+  .card-grid-mobile .card-element {
+    width: 65px !important;
+    height: 90px !important;
+    font-size: 1.2rem !important;
+  }
+}
+
+/* Collapsible section animation */
+.section-toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+.section-toggle-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* Scrollable container for mobile */
+.mobile-scroll-container {
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar but keep functionality */
+.mobile-scroll-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mobile-scroll-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mobile-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}

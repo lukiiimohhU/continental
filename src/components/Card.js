@@ -13,24 +13,31 @@ export const Card = ({ card, selected, onClick, className = '', style = {} }) =>
     const suitSize = width < 60 ? '1.2rem' : width < 70 ? '1.5rem' : '2rem';
 
     if (card.suit === 'JOKER' || card.is_joker) {
-      const topBottomSize = width < 60 ? '0.4rem' : width < 70 ? '0.5rem' : '0.6rem';
-      const iconSize = width < 60 ? '1.5rem' : width < 70 ? '2rem' : '2.5rem';
+      // Better scaling for small cards (50px)
+      const topBottomSize = width <= 50 ? '0.35rem' : width < 60 ? '0.4rem' : width < 70 ? '0.5rem' : '0.6rem';
+      const iconSize = width <= 50 ? '1.2rem' : width < 60 ? '1.5rem' : width < 70 ? '2rem' : '2.5rem';
+      const verticalPadding = width <= 50 ? '2px' : '4px';
 
       return (
-        <div className="flex flex-col items-center justify-center h-full px-1">
+        <div className="flex flex-col items-center justify-center h-full" style={{ padding: `${verticalPadding} 2px` }}>
           <div
             className="card-joker-text font-bold"
             style={{
               fontSize: topBottomSize,
-              letterSpacing: '0.3px',
-              lineHeight: '1'
+              letterSpacing: width <= 50 ? '0.1px' : '0.3px',
+              lineHeight: '1',
+              marginBottom: width <= 50 ? '1px' : '2px'
             }}
           >
             JOKER
           </div>
           <div
-            className="card-joker-icon my-1"
-            style={{ fontSize: iconSize }}
+            className="card-joker-icon"
+            style={{
+              fontSize: iconSize,
+              lineHeight: '1',
+              margin: width <= 50 ? '1px 0' : '2px 0'
+            }}
           >
             🃏
           </div>
@@ -38,8 +45,9 @@ export const Card = ({ card, selected, onClick, className = '', style = {} }) =>
             className="card-joker-text font-bold"
             style={{
               fontSize: topBottomSize,
-              letterSpacing: '0.3px',
-              lineHeight: '1'
+              letterSpacing: width <= 50 ? '0.1px' : '0.3px',
+              lineHeight: '1',
+              marginTop: width <= 50 ? '1px' : '2px'
             }}
           >
             JOKER

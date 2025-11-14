@@ -749,6 +749,33 @@ export default function GamePage() {
           </div>
         </div>
 
+        {/* Turn Order Display */}
+        <div className="glass-card p-3 md:p-4 mb-3 md:mb-6">
+          <h3 className="text-sm md:text-base font-semibold text-white mb-3">Orden de Turnos</h3>
+          <div className="flex flex-wrap gap-2 items-center">
+            {gameState.players.map((player, index) => (
+              <div key={player.id} className="flex items-center gap-2">
+                <div
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    player.id === gameState.current_player_id
+                      ? 'bg-green-600 text-white ring-2 ring-green-400 shadow-lg'
+                      : player.id === playerId
+                      ? 'bg-blue-600/30 text-blue-200 border border-blue-400'
+                      : 'bg-white/10 text-white/80'
+                  }`}
+                >
+                  {player.name}
+                  {player.id === playerId && ' (Tú)'}
+                  {player.id === gameState.current_player_id && ' ⚡'}
+                </div>
+                {index < gameState.players.length - 1 && (
+                  <span className="text-white/40 text-lg">→</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Game Table - More compact on mobile */}
         <div className="game-table game-table-mobile mb-3 md:mb-6" data-testid="game-table">
           <div className="flex items-center justify-center gap-4 md:gap-8 mb-4">

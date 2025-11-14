@@ -6,34 +6,40 @@ export const FanCards = ({ cards, meldType, expanded = false }) => {
 
   if (!cards || cards.length === 0) return null;
 
-  // For mobile, show collapsed fan by default
+  // For mobile, show collapsed fan by default with real Card components
   if (!isExpanded) {
+    const cardWidth = 50;
+    const overlapAmount = 20; // Cards will overlap by this amount
+    const containerWidth = cardWidth + (cards.length - 1) * overlapAmount;
+
     return (
       <div
-        className="fan-cards-container"
+        className="fan-cards-container-new"
         onClick={() => setIsExpanded(true)}
+        style={{
+          width: `${containerWidth}px`,
+          height: '70px',
+          position: 'relative',
+          cursor: 'pointer',
+          display: 'inline-block',
+          marginBottom: '24px'
+        }}
       >
         {cards.map((card, index) => (
           <div
             key={card.id}
-            className="fan-card"
             style={{
-              left: `${index * 12}px`,
+              position: 'absolute',
+              left: `${index * overlapAmount}px`,
+              top: 0,
               zIndex: index,
+              transition: 'all 0.2s ease'
             }}
           >
-            <div className="fan-card-mini">
-              <span className={`fan-card-rank ${
-                (card.suit === '♥' || card.suit === '♦') ? 'text-red-600' : 'text-gray-900'
-              }`}>
-                {card.rank}
-              </span>
-              <span className={`fan-card-suit ${
-                (card.suit === '♥' || card.suit === '♦') ? 'text-red-600' : 'text-gray-900'
-              }`}>
-                {card.suit}
-              </span>
-            </div>
+            <Card
+              card={card}
+              style={{ width: '50px', height: '70px' }}
+            />
           </div>
         ))}
         <div className="fan-card-label">
@@ -51,7 +57,7 @@ export const FanCards = ({ cards, meldType, expanded = false }) => {
           <Card
             key={card.id}
             card={card}
-            style={{ width: '50px', height: '70px' }}
+            style={{ width: '60px', height: '84px' }}
           />
         ))}
       </div>

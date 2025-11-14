@@ -675,6 +675,17 @@ export default function GamePage() {
                 )}
                 {gameState.round === 7 && <span>Bajar todo</span>}
               </div>
+          </div>
+          <div className="text-right">
+            <div className="text-sm text-white/60">Objetivo de la Ronda:</div>
+            <div className="text-white font-semibold">
+              {gameState.round_requirements.sets.length > 0 && (
+                <span>{gameState.round_requirements.sets.length} Trío(s) </span>
+              )}
+              {gameState.round_requirements.runs.length > 0 && (
+                <span>{gameState.round_requirements.runs.length} Escalera(s)</span>
+              )}
+              {gameState.round === 7 && <span>3 Escaleras + Bajar todo en un turno</span>}
             </div>
           </div>
         </div>

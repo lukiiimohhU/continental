@@ -39,6 +39,51 @@ export default function GamePage() {
   const [showOtherPlayers, setShowOtherPlayers] = useState(false);
   const [showMyMelds, setShowMyMelds] = useState(false);
 
+  // Define callbacks before useEffect that uses them
+  const loadRoomData = useCallback(async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/room/${roomCode}`);
+      const data = await response.json();
+      setRoomData(data);
+    } catch (error) {
+      console.error('Error loading room:', error);
+    }
+  }, [roomCode]);
+
+  const connectWebSocket = useCallback(() => {
+    const ws = new WebSocket(`${WS_URL}/api/ws/${roomCode}/${playerId}`);
+
+    ws.onopen = () => {
+      console.log('Game WebSocket conectado');
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === 'game_state') {
+        setGameState(data);
+      } else if (data.type === 'error') {
+        toast.error(data.message);
+      } else if (data.type === 'notification') {
+        toast.info(data.message);
+      } else if (data.type === 'round_ended') {
+        toast.success(data.message);
+      } else if (data.type === 'game_started') {
+        toast.success(data.message);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket desconectado');
+    };
+
+    wsRef.current = ws;
+  }, [roomCode, playerId]);
+
   useEffect(() => {
     if (!playerId) {
       navigate('/');
@@ -63,10 +108,10 @@ export default function GamePage() {
         const timeLeft = Math.max(0, Math.ceil(gameState.wait_end_time - now));
         setWaitTimeLeft(timeLeft);
       };
-      
+
       updateTimer();
       const interval = setInterval(updateTimer, 100);
-      
+
       return () => clearInterval(interval);
     } else {
       setWaitTimeLeft(0);
@@ -102,51 +147,7 @@ export default function GamePage() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [roomCode, playerId, connectWebSocket, loadRoomData]);
-
-  const loadRoomData = useCallback(async () => {
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/room/${roomCode}`);
-      const data = await response.json();
-      setRoomData(data);
-    } catch (error) {
-      console.error('Error loading room:', error);
-    }
-  }, [roomCode]);
-
-  const connectWebSocket = useCallback(() => {
-    const ws = new WebSocket(`${WS_URL}/api/ws/${roomCode}/${playerId}`);
-    
-    ws.onopen = () => {
-      console.log('Game WebSocket conectado');
-    };
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      
-      if (data.type === 'game_state') {
-        setGameState(data);
-      } else if (data.type === 'error') {
-        toast.error(data.message);
-      } else if (data.type === 'notification') {
-        toast.info(data.message);
-      } else if (data.type === 'round_ended') {
-        toast.success(data.message);
-      } else if (data.type === 'game_started') {
-        toast.success(data.message);
-      }
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket desconectado');
-    };
-
-    wsRef.current = ws;
-  }, [roomCode, playerId]);
+  }, [connectWebSocket, loadRoomData]);
 
   const sendAction = (action, data = {}) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {

@@ -189,7 +189,14 @@ export default function GamePage() {
   };
 
   const continueToNextRound = () => {
-    sendAction('continue_to_next_round');
+    // Si acabamos de completar la ronda 7, el juego debería terminar
+    if (gameState?.round === 7) {
+      console.log('Ronda 7 completada, estableciendo game_over manualmente');
+      // Forzar actualización del estado local para mostrar pantalla de juego terminado
+      setGameState(prev => ({ ...prev, game_over: true, round_ended: false }));
+    } else {
+      sendAction('continue_to_next_round');
+    }
   };
 
   const handleLeaveGame = () => {
@@ -753,9 +760,9 @@ export default function GamePage() {
         <div className="glass-card p-1.5 mb-2" data-testid="game-header">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-sm md:text-2xl font-bold">Continental - R{gameState.round}</h1>
+              <h1 className="text-sm md:text-2xl font-bold">Continental - Ronda {gameState.round}</h1>
               <div className="text-[0.65rem] md:text-sm text-white/60">
-                <code className="text-white">{roomCode}</code>
+                Código: <code className="text-white">{roomCode}</code>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -1109,7 +1116,7 @@ export default function GamePage() {
       {/* Menu Modal */}
       {showMenu && (
         <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
           onClick={() => {
             setShowMenu(false);
             setActiveSubmenu(null);
@@ -1119,7 +1126,7 @@ export default function GamePage() {
           }}
         >
           <div
-            className="glass-card p-6 max-w-sm w-full mx-4 relative max-h-[90vh] overflow-y-auto"
+            className="glass-card p-6 max-w-sm w-full mx-4 relative max-h-[90vh] overflow-y-auto border border-white/20 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Botón de cerrar (X) */}
@@ -1131,16 +1138,16 @@ export default function GamePage() {
                 setSelectedPlayerId(null);
                 setNewScore('');
               }}
-              className="absolute top-4 right-4 p-1 hover:bg-white/10 rounded transition-colors"
+              className="absolute top-4 right-4 p-1.5 hover:bg-white/10 rounded-lg transition-colors text-white/60 hover:text-white"
               aria-label="Cerrar menú"
             >
               <X className="h-5 w-5" />
             </button>
 
             {/* Contenido del menú */}
-            <div className="flex items-center gap-2 mb-6">
-              {isHost && <Crown className="h-5 w-5 text-yellow-400" />}
-              <h3 className="text-xl font-bold text-white">
+            <div className="flex items-center gap-3 mb-6">
+              {isHost && <Crown className="h-6 w-6 text-yellow-400" />}
+              <h3 className="text-2xl font-bold text-white">
                 {isHost ? 'Panel de Control' : 'Menú'}
               </h3>
             </div>
@@ -1321,7 +1328,7 @@ export default function GamePage() {
                   </button>
                   {activeSubmenu === 'change-score' && (
                     <div className="mt-2 ml-4 space-y-2">
-                      <label className="text-xs font-medium text-white/80">Jugador:</label>
+                      <label className="text-xs font-semibold text-white/80 mb-1 block">Jugador:</label>
                       <select
                         value={selectedPlayerId || ''}
                         onChange={(e) => {
@@ -1331,11 +1338,11 @@ export default function GamePage() {
                             setNewScore(player.score.toString());
                           }
                         }}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded text-white text-xs"
+                        className="w-full p-2.5 bg-white/10 hover:bg-white/15 border border-white/20 rounded-lg text-white text-xs transition-colors focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20"
                       >
-                        <option value="">Selecciona un jugador</option>
+                        <option value="" className="bg-gray-800">Selecciona un jugador</option>
                         {gameState?.players.map(player => (
-                          <option key={player.id} value={player.id}>
+                          <option key={player.id} value={player.id} className="bg-gray-800">
                             {player.name} ({player.score} pts)
                           </option>
                         ))}
@@ -1343,18 +1350,18 @@ export default function GamePage() {
 
                       {selectedPlayerId && (
                         <>
-                          <label className="text-xs font-medium text-white/80">Nuevos Puntos:</label>
+                          <label className="text-xs font-semibold text-white/80 mb-1 block">Nuevos Puntos:</label>
                           <input
                             type="number"
                             min="0"
                             value={newScore}
                             onChange={(e) => setNewScore(e.target.value)}
                             placeholder="0"
-                            className="w-full p-2 bg-white/10 border border-white/20 rounded text-white text-xs"
+                            className="w-full p-2.5 bg-white/10 hover:bg-white/15 border border-white/20 rounded-lg text-white text-xs transition-colors focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20"
                           />
                           <button
                             onClick={handleChangePlayerScore}
-                            className="w-full p-2 bg-green-600 hover:bg-green-700 rounded text-white text-xs font-medium"
+                            className="w-full p-2 bg-green-600/20 hover:bg-green-600/30 border border-green-600/40 rounded text-white text-xs font-medium"
                           >
                             Guardar
                           </button>
@@ -1373,7 +1380,7 @@ export default function GamePage() {
                   handleLeaveGame();
                 }
               }}
-              className="w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
+              className="w-full py-3 px-4 bg-red-600/20 hover:bg-red-600/30 border-2 border-red-600/50 text-white font-semibold rounded-lg transition-colors"
             >
               Abandonar Partida
             </button>

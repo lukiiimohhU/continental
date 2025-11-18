@@ -716,7 +716,7 @@ export default function GamePage() {
 
               {/* Player's melds - always visible, very compact */}
               {player.melds && player.melds.length > 0 && (
-                <div className="flex flex-col md:flex-row md:flex-wrap gap-0.5">
+                <div className="player-melds-container">
                   {player.melds.map((meld, idx) => (
                     <FanCards
                       key={idx}
@@ -854,140 +854,143 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* My Hand */}
-        <div className="glass-card p-1.5">
-          <div className="flex items-center justify-between mb-1.5">
-            <h3 className="text-sm font-bold text-white">Tu Mano ({gameState.my_hand?.length || 0})</h3>
-            <div className="flex gap-1 flex-wrap justify-end">
-              {/* Create Set/Run buttons - only before laying down */}
-              {selectedCards.length >= 3 && !gameState.has_laid_down && gameState.has_drawn && (
-                <>
-                  <Button
-                    onClick={() => createMeld('set')}
-                    size="sm"
-                    className="bg-blue-600 hover:bg-blue-700 text-white text-[0.7rem] px-2 py-1 h-auto"
-                    data-testid="create-set-button"
-                  >
-                    Trío
-                  </Button>
-                  <Button
-                    onClick={() => createMeld('run')}
-                    size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white text-[0.7rem] px-2 py-1 h-auto"
-                    data-testid="create-run-button"
-                  >
-                    Escalera
-                  </Button>
-                </>
-              )}
+        {/* My Hand & Melds Wrapper - responsive to orientation */}
+        <div className="hand-melds-wrapper">
+          {/* My Hand */}
+          <div className="glass-card p-1.5 hand-section">
+            <div className="flex items-center justify-between mb-1.5">
+              <h3 className="text-sm font-bold text-white">Tu Mano ({gameState.my_hand?.length || 0})</h3>
+              <div className="flex gap-1 flex-wrap justify-end">
+                {/* Create Set/Run buttons - only before laying down */}
+                {selectedCards.length >= 3 && !gameState.has_laid_down && gameState.has_drawn && (
+                  <>
+                    <Button
+                      onClick={() => createMeld('set')}
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white text-[0.7rem] px-2 py-1 h-auto"
+                      data-testid="create-set-button"
+                    >
+                      Trío
+                    </Button>
+                    <Button
+                      onClick={() => createMeld('run')}
+                      size="sm"
+                      className="bg-purple-600 hover:bg-purple-700 text-white text-[0.7rem] px-2 py-1 h-auto"
+                      data-testid="create-run-button"
+                    >
+                      Escalera
+                    </Button>
+                  </>
+                )}
 
-              {/* Lay Down button */}
-              {selectedMelds.length > 0 && !gameState.has_laid_down && (
-                <>
+                {/* Lay Down button */}
+                {selectedMelds.length > 0 && !gameState.has_laid_down && (
+                  <>
+                    <Button
+                      onClick={layDownMelds}
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700 text-white text-[0.7rem] px-2 py-1 h-auto"
+                      data-testid="lay-down-button"
+                    >
+                      Bajar ({selectedMelds.length})
+                    </Button>
+                    <Button
+                      onClick={clearMelds}
+                      size="sm"
+                      variant="outline"
+                      className="border-white/20 hover:bg-white/10 text-white text-[0.7rem] px-2 py-1 h-auto"
+                    >
+                      ✕
+                    </Button>
+                  </>
+                )}
+
+                {/* Place button - only after laying down */}
+                {selectedCards.length === 1 && canPlaceCards && (
                   <Button
-                    onClick={layDownMelds}
+                    onClick={openPlaceCardPopup}
                     size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white text-[0.7rem] px-2 py-1 h-auto"
-                    data-testid="lay-down-button"
+                    className="bg-cyan-600 hover:bg-cyan-700 text-white text-[0.7rem] px-2 py-1 h-auto"
+                    data-testid="place-card-button"
                   >
-                    Bajar ({selectedMelds.length})
+                    <Plus className="h-3 w-3 mr-0.5" />
+                    Colocar
                   </Button>
+                )}
+
+                {/* Discard button */}
+                {selectedCards.length === 1 && gameState.has_drawn && isMyTurn() && (
                   <Button
-                    onClick={clearMelds}
+                    onClick={() => discardCard(selectedCards[0])}
                     size="sm"
-                    variant="outline"
-                    className="border-white/20 hover:bg-white/10 text-white text-[0.7rem] px-2 py-1 h-auto"
+                    className="bg-red-600 hover:bg-red-700 text-white text-[0.7rem] px-2 py-1 h-auto"
+                    data-testid="discard-selected-button"
                   >
-                    ✕
+                    Descartar <ArrowDown className="h-3 w-3 ml-0.5" />
                   </Button>
-                </>
-              )}
-
-              {/* Place button - only after laying down */}
-              {selectedCards.length === 1 && canPlaceCards && (
-                <Button
-                  onClick={openPlaceCardPopup}
-                  size="sm"
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white text-[0.7rem] px-2 py-1 h-auto"
-                  data-testid="place-card-button"
-                >
-                  <Plus className="h-3 w-3 mr-0.5" />
-                  Colocar
-                </Button>
-              )}
-
-              {/* Discard button */}
-              {selectedCards.length === 1 && gameState.has_drawn && isMyTurn() && (
-                <Button
-                  onClick={() => discardCard(selectedCards[0])}
-                  size="sm"
-                  className="bg-red-600 hover:bg-red-700 text-white text-[0.7rem] px-2 py-1 h-auto"
-                  data-testid="discard-selected-button"
-                >
-                  Descartar <ArrowDown className="h-3 w-3 ml-0.5" />
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Pending Melds Preview */}
-          {selectedMelds.length > 0 && (
-            <div className="bg-white/5 rounded p-1 mb-1.5">
-              <div className="text-[0.65rem] text-white/60 mb-0.5">A bajar:</div>
-              <div className="space-y-0.5">
-                {selectedMelds.map((meld, idx) => (
-                  <div key={idx} className="text-[0.65rem] text-white/80">
-                    {meld.type === 'set' ? 'Trío' : 'Escalera'} ({meld.card_ids.length})
-                  </div>
-                ))}
+                )}
               </div>
             </div>
-          )}
 
-          <div className="card-grid card-grid-mobile" data-testid="my-hand">
-            {gameState.my_hand && gameState.my_hand.map((card, index) => (
-              <div
-                key={card.id}
-                draggable
-                onDragStart={(e) => handleDragStart(e, card, index)}
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, index)}
-                onDragEnd={handleDragEnd}
-                onTouchStart={(e) => {
-                  handleTouchStart(e, card, index);
-                }}
-                onTouchMove={(e) => {
-                  handleTouchMove(e, index);
-                }}
-                onTouchEnd={(e) => {
-                  handleTouchEnd(e, index);
-                }}
-                onTouchCancel={handleTouchCancel}
-                onContextMenu={(e) => e.preventDefault()}
-                className={`card-slot ${dragOverIndex === index ? 'drag-over' : ''} ${
-                  touchDragActive && draggedCard?.index === index ? 'touch-dragging' : ''
-                }`}
-              >
-                <Card
-                  card={card}
-                  selected={selectedCards.includes(card.id)}
-                  onClick={(e) => {
-                    // Only allow click if not in touch drag mode
-                    if (!touchDragActive && !longPressTriggered) {
-                      toggleCardSelection(card.id);
-                    }
+            {/* Pending Melds Preview */}
+            {selectedMelds.length > 0 && (
+              <div className="bg-white/5 rounded p-1 mb-1.5">
+                <div className="text-[0.65rem] text-white/60 mb-0.5">A bajar:</div>
+                <div className="space-y-0.5">
+                  {selectedMelds.map((meld, idx) => (
+                    <div key={idx} className="text-[0.65rem] text-white/80">
+                      {meld.type === 'set' ? 'Trío' : 'Escalera'} ({meld.card_ids.length})
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="card-grid card-grid-mobile" data-testid="my-hand">
+              {gameState.my_hand && gameState.my_hand.map((card, index) => (
+                <div
+                  key={card.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, card, index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragEnd={handleDragEnd}
+                  onTouchStart={(e) => {
+                    handleTouchStart(e, card, index);
                   }}
-                  className={draggedCard?.index === index ? 'card-dragging' : ''}
-                  data-testid={`card-${card.id}`}
-                />
-              </div>
-            ))}
+                  onTouchMove={(e) => {
+                    handleTouchMove(e, index);
+                  }}
+                  onTouchEnd={(e) => {
+                    handleTouchEnd(e, index);
+                  }}
+                  onTouchCancel={handleTouchCancel}
+                  onContextMenu={(e) => e.preventDefault()}
+                  className={`card-slot ${dragOverIndex === index ? 'drag-over' : ''} ${
+                    touchDragActive && draggedCard?.index === index ? 'touch-dragging' : ''
+                  }`}
+                >
+                  <Card
+                    card={card}
+                    selected={selectedCards.includes(card.id)}
+                    onClick={(e) => {
+                      // Only allow click if not in touch drag mode
+                      if (!touchDragActive && !longPressTriggered) {
+                        toggleCardSelection(card.id);
+                      }
+                    }}
+                    className={draggedCard?.index === index ? 'card-dragging' : ''}
+                    data-testid={`card-${card.id}`}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* My Melds - Always visible, compact */}
+          {/* My Melds - Separate section, responsive to orientation */}
           {myPlayer?.melds && myPlayer.melds.length > 0 && (
-            <div className="mt-1.5">
+            <div className="glass-card p-1.5 own-melds-section">
               <h4 className="text-xs font-semibold text-white/80 mb-1">Tus Combinaciones</h4>
               <div className="space-y-0.5">
                 {myPlayer.melds.map((meld, idx) => (

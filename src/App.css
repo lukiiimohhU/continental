@@ -618,3 +618,41 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.7rem !important;
   line-height: 1.2 !important;
 }
+
+/* Responsive melds based on device orientation */
+.player-melds-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+@media (orientation: landscape) {
+  .player-melds-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+/* Hand and own melds layout - side by side in landscape */
+.hand-melds-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (orientation: landscape) {
+  .hand-melds-wrapper {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .hand-section {
+    flex: 1;
+    min-width: 0; /* Prevents flex item from overflowing */
+  }
+
+  .own-melds-section {
+    width: 200px;
+    flex-shrink: 0;
+  }
+}

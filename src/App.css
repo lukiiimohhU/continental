@@ -551,14 +551,22 @@ h1, h2, h3, h4, h5, h6 {
 
   /* Compact hand grid on mobile */
   .card-grid-mobile {
-    grid-template-columns: repeat(auto-fill, minmax(65px, 1fr)) !important;
-    gap: 8px !important;
-    padding: 8px !important;
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)) !important;
+    gap: 6px !important;
+    padding: 6px !important;
   }
 
   .card-grid-mobile .card-element {
-    width: 65px !important;
-    height: 90px !important;
+    width: 50px !important;
+    height: 70px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .card-grid-mobile .card-rank {
+    font-size: 0.7rem !important;
+  }
+
+  .card-grid-mobile .card-suit {
     font-size: 1.2rem !important;
   }
 }

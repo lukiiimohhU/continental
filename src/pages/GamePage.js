@@ -682,7 +682,12 @@ export default function GamePage() {
 
         {/* Other Players - Always visible, compact */}
         <div className="mb-2">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5">
+          <div className={`grid gap-1.5 ${
+            gameState.players.length <= 2 ? 'grid-cols-1' :
+            gameState.players.length <= 3 ? 'grid-cols-2' :
+            gameState.players.length <= 4 ? 'grid-cols-3' :
+            'grid-cols-4'
+          }`}>
           {gameState.players.filter(p => p.id !== playerId).map((player) => (
             <div
               key={player.id}
@@ -700,7 +705,7 @@ export default function GamePage() {
 
               <div className="flex justify-between text-[0.65rem] text-white/60 mb-1">
                 <span>Cartas: <span className="text-white font-semibold">{player.hand_count}</span></span>
-                <span>Pts: <span className="text-white font-semibold">{player.score}</span></span>
+                <span>Puntos: <span className="text-white font-semibold">{player.score}</span></span>
               </div>
 
               {/* Player's melds - always visible, very compact */}
@@ -824,8 +829,8 @@ export default function GamePage() {
           <div className="glass-card p-1.5 w-auto">
             <h3 className="text-[0.65rem] font-semibold text-white/80 mb-1 text-center">Turnos</h3>
             <div className="flex flex-col gap-1 items-center">
-              {gameState.players.map((player, index) => (
-                <div key={player.id} className="flex items-center gap-1">
+              {gameState.players.map((player) => (
+                <div key={player.id}>
                   <div
                     className={`px-2 py-0.5 rounded text-[0.65rem] font-medium whitespace-nowrap ${
                       player.id === gameState.current_player_id
@@ -838,9 +843,6 @@ export default function GamePage() {
                     {player.name}
                     {player.id === playerId && ' (Tú)'}
                   </div>
-                  {index < gameState.players.length - 1 && (
-                    <span className="text-white/30 text-xs">↓</span>
-                  )}
                 </div>
               ))}
             </div>

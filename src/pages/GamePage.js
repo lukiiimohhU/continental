@@ -785,12 +785,6 @@ export default function GamePage() {
                             data-testid="draw-discard-button"
                           />
                         </div>
-                        {gameState.waiting_for_requests && waitTimeLeft > 0 && (
-                          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 flex items-center gap-1 bg-white/10 backdrop-blur px-2 py-0.5 rounded-full">
-                            <Timer className="h-3 w-3 text-white animate-pulse" />
-                            <span className="text-white font-bold text-xs">{waitTimeLeft}s</span>
-                          </div>
-                        )}
                       </div>
                     ) : (
                       <div style={{ width: '60px', height: '84px' }} className="flex items-center justify-center bg-white/5 rounded-lg border border-dashed border-white/20">

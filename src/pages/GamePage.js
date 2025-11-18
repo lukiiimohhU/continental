@@ -722,9 +722,9 @@ export default function GamePage() {
         </div>
 
         {/* Game Table & Turn Order - Side by side */}
-        <div className="grid grid-cols-2 gap-2 mb-2">
+        <div className="flex gap-2 mb-2">
           {/* Game Table - Compact */}
-          <div className="glass-card p-1.5" data-testid="game-table">
+          <div className="glass-card p-1.5 flex-1" data-testid="game-table">
           <div className="flex items-center justify-center gap-2 mb-1">
             {/* Deck */}
             <div className="text-center">
@@ -820,14 +820,14 @@ export default function GamePage() {
           )}
         </div>
 
-          {/* Turn Order Display - Compact */}
-          <div className="glass-card p-1.5">
-            <h3 className="text-[0.65rem] font-semibold text-white/80 mb-1">Orden de Turnos</h3>
-            <div className="flex flex-col gap-1">
+          {/* Turn Order Display - Compact, Dynamic Width */}
+          <div className="glass-card p-1.5 w-auto">
+            <h3 className="text-[0.65rem] font-semibold text-white/80 mb-1 text-center">Turnos</h3>
+            <div className="flex flex-col gap-1 items-center">
               {gameState.players.map((player, index) => (
                 <div key={player.id} className="flex items-center gap-1">
                   <div
-                    className={`px-2 py-0.5 rounded text-[0.65rem] font-medium flex-1 text-center ${
+                    className={`px-2 py-0.5 rounded text-[0.65rem] font-medium whitespace-nowrap ${
                       player.id === gameState.current_player_id
                         ? 'bg-green-600 text-white ring-1 ring-green-400'
                         : player.id === playerId

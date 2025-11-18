@@ -604,19 +604,29 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Compact toast notifications */
 [data-sonner-toast] {
-  max-width: 280px !important;
-  padding: 8px 12px !important;
-  font-size: 0.8rem !important;
+  max-width: 220px !important;
+  padding: 6px 10px !important;
+  font-size: 0.7rem !important;
 }
 
 [data-sonner-toast] [data-title] {
-  font-size: 0.8rem !important;
+  font-size: 0.7rem !important;
   line-height: 1.2 !important;
 }
 
 [data-sonner-toast] [data-description] {
-  font-size: 0.7rem !important;
+  font-size: 0.65rem !important;
   line-height: 1.2 !important;
+}
+
+/* Fix toast position in portrait mode */
+@media (orientation: portrait) {
+  .toaster {
+    position: fixed !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    left: auto !important;
+  }
 }
 
 /* Game table inner layout - turn indicator positioning */

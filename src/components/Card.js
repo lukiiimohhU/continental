@@ -13,11 +13,11 @@ export const Card = ({ card, selected, onClick, className = '', style = {} }) =>
     const suitSize = width < 60 ? '1.2rem' : width < 70 ? '1.5rem' : '2rem';
 
     if (card.suit === 'JOKER' || card.is_joker) {
-      // Better scaling for small cards (40px, 45px, 50px)
-      const topBottomSize = width <= 40 ? '0.3rem' : width <= 45 ? '0.33rem' : width <= 50 ? '0.35rem' : width < 60 ? '0.4rem' : width < 70 ? '0.5rem' : '0.6rem';
-      const iconSize = width <= 40 ? '1rem' : width <= 45 ? '1.1rem' : width <= 50 ? '1.2rem' : width < 60 ? '1.5rem' : width < 70 ? '2rem' : '2.5rem';
-      const verticalPadding = width <= 40 ? '1px' : width <= 50 ? '2px' : '4px';
-      const emojiMargin = width <= 40 ? '5px' : width <= 45 ? '6px' : width <= 50 ? '7px' : '8px';
+      // Better scaling for small cards (40px, 45px, 50px) and large cards (80px+)
+      const topBottomSize = width <= 40 ? '0.3rem' : width <= 45 ? '0.33rem' : width <= 50 ? '0.35rem' : width < 60 ? '0.4rem' : width < 70 ? '0.5rem' : width < 80 ? '0.55rem' : '0.5rem';
+      const iconSize = width <= 40 ? '1rem' : width <= 45 ? '1.1rem' : width <= 50 ? '1.2rem' : width < 60 ? '1.5rem' : width < 70 ? '2rem' : width < 80 ? '2.2rem' : '2rem';
+      const verticalPadding = width <= 40 ? '1px' : width <= 50 ? '2px' : width < 80 ? '6px' : '8px';
+      const emojiMargin = width <= 40 ? '5px' : width <= 45 ? '6px' : width <= 50 ? '7px' : width < 80 ? '8px' : '6px';
 
       return (
         <div className="flex flex-col items-center justify-center h-full" style={{ padding: `${verticalPadding} 2px` }}>

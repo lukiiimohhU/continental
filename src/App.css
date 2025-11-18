@@ -70,7 +70,6 @@ h1, h2, h3, h4, h5, h6 {
 .card-joker {
   background: #ffffff;
   color: #000000;
-  border: 2px solid #000000;
 }
 
 .card-joker-text {
@@ -601,4 +600,21 @@ h1, h2, h3, h4, h5, h6 {
 .mobile-scroll-container::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
+}
+
+/* Compact toast notifications */
+[data-sonner-toast] {
+  max-width: 280px !important;
+  padding: 8px 12px !important;
+  font-size: 0.8rem !important;
+}
+
+[data-sonner-toast] [data-title] {
+  font-size: 0.8rem !important;
+  line-height: 1.2 !important;
+}
+
+[data-sonner-toast] [data-description] {
+  font-size: 0.7rem !important;
+  line-height: 1.2 !important;
 }

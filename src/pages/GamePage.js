@@ -122,7 +122,10 @@ export default function GamePage() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        console.log('App became visible - checking WebSocket connection');
+        console.log('App became visible - refreshing game state');
+
+        // Always reload room data to sync state when returning
+        loadRoomData();
 
         // Check if WebSocket is disconnected or closing
         if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
@@ -135,9 +138,12 @@ export default function GamePage() {
 
           // Reconnect WebSocket
           connectWebSocket();
-
-          // Reload room data to sync state
-          loadRoomData();
+        } else {
+          // Even if WebSocket is connected, request fresh game state
+          console.log('WebSocket connected, requesting fresh game state');
+          if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+            wsRef.current.send(JSON.stringify({ action: 'get_state' }));
+          }
         }
       }
     };
@@ -710,14 +716,13 @@ export default function GamePage() {
 
               {/* Player's melds - always visible, very compact */}
               {player.melds && player.melds.length > 0 && (
-                <div className="space-y-0.5">
+                <div className="flex flex-col md:flex-row md:flex-wrap gap-0.5">
                   {player.melds.map((meld, idx) => (
-                    <div key={idx} className="flex flex-wrap gap-0.5">
-                      <FanCards
-                        cards={meld.cards}
-                        meldType={meld.type}
-                      />
-                    </div>
+                    <FanCards
+                      key={idx}
+                      cards={meld.cards}
+                      meldType={meld.type}
+                    />
                   ))}
                 </div>
               )}

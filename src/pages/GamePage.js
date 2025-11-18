@@ -654,87 +654,60 @@ export default function GamePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-2 md:p-4">
+    <div className="min-h-screen bg-black text-white p-1 md:p-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header - Compact on mobile */}
-        <div className="glass-card p-2 md:p-4 mb-3 md:mb-6" data-testid="game-header">
+        {/* Header - Compact */}
+        <div className="glass-card p-1.5 mb-2" data-testid="game-header">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-lg md:text-2xl font-bold">Continental - R{gameState.round}</h1>
-              <div className="text-xs md:text-sm text-white/60 mt-1">
+              <h1 className="text-sm md:text-2xl font-bold">Continental - R{gameState.round}</h1>
+              <div className="text-[0.65rem] md:text-sm text-white/60">
                 <code className="text-white">{roomCode}</code>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-xs md:text-sm text-white/60">Objetivo:</div>
-              <div className="text-white text-xs md:text-base font-semibold">
+              <div className="text-[0.65rem] md:text-sm text-white/60">Objetivo:</div>
+              <div className="text-white text-[0.7rem] md:text-base font-semibold">
                 {gameState.round_requirements.sets.length > 0 && (
                   <span>{gameState.round_requirements.sets.length} Trío(s) </span>
                 )}
                 {gameState.round_requirements.runs.length > 0 && (
                   <span>{gameState.round_requirements.runs.length} Escalera(s)</span>
                 )}
-                {gameState.round === 7 && <span>3 Escaleras + Bajar todo en un turno</span>}
+                {gameState.round === 7 && <span>3 Escaleras + Bajar todo</span>}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Other Players - Collapsible on mobile */}
-        <div className="mb-3 md:mb-6">
-          <div
-            className="md:hidden mobile-section-header"
-            onClick={() => setShowOtherPlayers(!showOtherPlayers)}
-          >
-            <span className="mobile-section-title">
-              Jugadores ({gameState.players.filter(p => p.id !== playerId).length})
-            </span>
-            <ChevronDown className={`h-4 w-4 section-toggle-icon ${showOtherPlayers ? 'rotated' : ''}`} />
-          </div>
-          <div className={`mobile-section-content ${showOtherPlayers ? 'expanded' : ''} md:!max-h-none`}>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4">
+        {/* Other Players - Always visible, compact */}
+        <div className="mb-2">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5">
           {gameState.players.filter(p => p.id !== playerId).map((player) => (
             <div
               key={player.id}
-              className={`glass-card p-2 md:p-4 player-card-mobile ${
-                player.id === gameState.current_player_id ? 'ring-2 ring-white' : ''
+              className={`glass-card p-1.5 ${
+                player.id === gameState.current_player_id ? 'ring-1 ring-green-400' : ''
               }`}
               data-testid={`player-${player.id}`}
             >
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-white truncate">{player.name}</h3>
+              <div className="flex items-center justify-between mb-0.5">
+                <h3 className="text-xs font-semibold text-white truncate">{player.name}</h3>
                 {player.id === gameState.current_player_id && (
-                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                )}
-              </div>
-              
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between text-white/60">
-                  <span>Cartas:</span>
-                  <span className="text-white font-semibold">{player.hand_count}</span>
-                </div>
-                <div className="flex justify-between text-white/60">
-                  <span>Puntos:</span>
-                  <span className="text-white font-semibold">{player.score}</span>
-                </div>
-                {player.warnings > 0 && (
-                  <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                    <AlertCircle className="h-3 w-3" />
-                    <span>{player.warnings} advertencia(s)</span>
-                  </div>
-                )}
-                {player.has_laid_down && (
-                  <div className="text-green-400 text-xs font-semibold">
-                    ✓ Ha bajado
-                  </div>
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 )}
               </div>
 
-              {/* Player's melds */}
+              <div className="flex justify-between text-[0.65rem] text-white/60 mb-1">
+                <span>Cartas: <span className="text-white font-semibold">{player.hand_count}</span></span>
+                <span>Pts: <span className="text-white font-semibold">{player.score}</span></span>
+              </div>
+
+              {/* Player's melds - always visible, very compact */}
               {player.melds && player.melds.length > 0 && (
-                <div className="space-y-2 mt-2">
+                <div className="space-y-0.5">
                   {player.melds.map((meld, idx) => (
-                    <div key={idx} className="flex flex-wrap gap-1">
+                    <div key={idx} className="flex flex-wrap gap-0.5">
                       <FanCards
                         cards={meld.cards}
                         meldType={meld.type}
@@ -745,67 +718,68 @@ export default function GamePage() {
               )}
             </div>
           ))}
-            </div>
           </div>
         </div>
 
-        {/* Turn Order Display */}
-        <div className="glass-card p-3 md:p-4 mb-3 md:mb-6">
-          <h3 className="text-sm md:text-base font-semibold text-white mb-3">Orden de Turnos</h3>
-          <div className="flex flex-wrap gap-2 items-center">
+        {/* Turn Order Display - Compact */}
+        <div className="glass-card p-1.5 mb-2">
+          <h3 className="text-[0.65rem] font-semibold text-white/80 mb-1">Orden de Turnos</h3>
+          <div className="flex flex-wrap gap-1 items-center">
             {gameState.players.map((player, index) => (
-              <div key={player.id} className="flex items-center gap-2">
+              <div key={player.id} className="flex items-center gap-1">
                 <div
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-2 py-0.5 rounded text-[0.65rem] font-medium ${
                     player.id === gameState.current_player_id
-                      ? 'bg-green-600 text-white ring-2 ring-green-400 shadow-lg'
+                      ? 'bg-green-600 text-white ring-1 ring-green-400'
                       : player.id === playerId
                       ? 'bg-blue-600/30 text-blue-200 border border-blue-400'
-                      : 'bg-white/10 text-white/80'
+                      : 'bg-white/10 text-white/70'
                   }`}
                 >
                   {player.name}
                   {player.id === playerId && ' (Tú)'}
-                  {player.id === gameState.current_player_id && ' ⚡'}
                 </div>
                 {index < gameState.players.length - 1 && (
-                  <span className="text-white/40 text-lg">→</span>
+                  <span className="text-white/30 text-xs">→</span>
                 )}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Game Table - More compact on mobile */}
-        <div className="game-table game-table-mobile mb-3 md:mb-6" data-testid="game-table">
-          <div className="flex items-center justify-center gap-4 md:gap-8 mb-4">
+        {/* Game Table - Compact */}
+        <div className="glass-card p-1.5 mb-2" data-testid="game-table">
+          <div className="flex items-center justify-center gap-2 mb-1">
             {/* Deck */}
             <div className="text-center">
               <div
                 onClick={() => drawCard('deck')}
-                className="card-back cursor-pointer hover:scale-105 transition-transform"
+                className="cursor-pointer hover:scale-105 transition-transform"
+                style={{ width: '60px', height: '84px', position: 'relative' }}
                 data-testid="draw-deck-button"
               >
-                <div className="card-back-pattern"></div>
-                <div className="card-count-badge">
-                  {gameState.deck_count}
+                <div className="card-back" style={{ width: '60px', height: '84px' }}>
+                  <div className="card-back-pattern"></div>
+                  <div className="card-count-badge" style={{ fontSize: '0.875rem', padding: '4px 8px' }}>
+                    {gameState.deck_count}
+                  </div>
                 </div>
               </div>
-              <div className="text-white/60 text-sm mt-2">Mazo</div>
+              <div className="text-white/60 text-[0.65rem] mt-0.5">Mazo</div>
             </div>
 
             {/* Discard Pile */}
             <div className="text-center relative">
               {gameState.discard_pile_top ? (
                 <div className="flex flex-col items-center">
-                  <div 
-                    className={`discard-area flex items-center justify-center ${
-                      canRequestCard ? 'active' : ''
+                  <div
+                    className={`flex items-center justify-center rounded-lg ${
+                      canRequestCard ? 'ring-2 ring-green-400' : 'bg-white/5'
                     }`}
-                    style={{ 
-                      width: '96px', 
-                      height: '128px',
-                      transition: 'none'
+                    style={{
+                      width: '60px',
+                      height: '84px',
+                      padding: '4px'
                     }}
                     onClick={() => {
                       if (canRequestCard) {
@@ -818,139 +792,129 @@ export default function GamePage() {
                     <Card
                       card={gameState.discard_pile_top}
                       className="cursor-pointer"
+                      style={{ width: '56px', height: '78px' }}
                       data-testid="draw-discard-button"
                     />
                   </div>
                   {gameState.waiting_for_requests && waitTimeLeft > 0 && (
-                    <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full border border-white/20">
-                      <Timer className="h-4 w-4 text-white animate-pulse" />
-                      <span className="text-white font-bold text-lg">{waitTimeLeft}s</span>
-                    </div>
-                  )}
-                  {isMyTurn() && gameState.turn_phase === 'action' && (
-                    <div className="text-xs text-white/60 mt-1">Ya has robado</div>
-                  )}
-                  {!isMyTurn() && !canRequestCard && (
-                    <div className="text-xs text-white/60 mt-1">Espera al descarte</div>
-                  )}
-                  {canRequestCard && (
-                    <div className="text-xs text-green-400 mt-2 font-semibold animate-pulse">
-                      ¡Haz clic para solicitar!
+                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 flex items-center gap-1 bg-white/10 backdrop-blur px-2 py-0.5 rounded-full">
+                      <Timer className="h-3 w-3 text-white animate-pulse" />
+                      <span className="text-white font-bold text-xs">{waitTimeLeft}s</span>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="discard-area empty">
-                  <div className="text-sm text-white/60">Vacío</div>
+                <div style={{ width: '60px', height: '84px' }} className="flex items-center justify-center bg-white/5 rounded-lg border border-dashed border-white/20">
+                  <div className="text-[0.65rem] text-white/60">Vacío</div>
                 </div>
               )}
-              <div className="text-white/60 text-sm mt-2">Descarte</div>
+              <div className="text-white/60 text-[0.65rem] mt-0.5">Descarte</div>
             </div>
           </div>
 
-          {/* Turn Indicator */}
+          {/* Turn Indicator - Compact */}
           {isMyTurn() && !gameState.waiting_for_requests && (
-            <div className="text-center mb-4">
-              <div className="inline-flex items-center gap-2 bg-white text-black px-4 py-2 rounded-full font-semibold player-indicator" data-testid="your-turn-indicator">
+            <div className="text-center mt-1">
+              <div className="inline-flex items-center gap-1 bg-white text-black px-2 py-0.5 rounded-full text-[0.7rem] font-semibold" data-testid="your-turn-indicator">
                 <span>TU TURNO</span>
-                {gameState.turn_phase === 'draw' && !gameState.has_drawn && <span>- Roba una carta</span>}
-                {gameState.turn_phase === 'action' && !gameState.has_laid_down && <span>- Baja cartas o descarta</span>}
+                {gameState.turn_phase === 'draw' && !gameState.has_drawn && <span>- Roba</span>}
+                {gameState.turn_phase === 'action' && !gameState.has_laid_down && <span>- Baja o descarta</span>}
                 {gameState.turn_phase === 'action' && gameState.has_laid_down && <span>- Coloca o descarta</span>}
               </div>
             </div>
           )}
 
-          {/* Waiting Period Message */}
+          {/* Waiting Period Message - Compact */}
           {gameState.waiting_for_requests && (
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-full font-semibold animate-pulse">
-                <Timer className="h-5 w-5" />
-                <span>Período de solicitud activo - {waitTimeLeft}s</span>
+            <div className="text-center mt-1">
+              <div className="inline-flex items-center gap-1 bg-green-600 text-white px-2 py-0.5 rounded-full text-[0.7rem] font-semibold animate-pulse">
+                <Timer className="h-3 w-3" />
+                <span>Solicitud activa - {waitTimeLeft}s</span>
               </div>
             </div>
           )}
 
-          {/* First Draw Message */}
+          {/* First Draw Message - Compact */}
           {gameState.first_draw_of_round && !isMyTurn() && gameState.discard_pile_top && (
-            <div className="text-center mt-4">
-              <div className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full font-semibold">
-                <span>Puedes solicitar la carta inicial</span>
+            <div className="text-center mt-1">
+              <div className="inline-flex items-center gap-1 bg-blue-600 text-white px-2 py-0.5 rounded-full text-[0.7rem] font-semibold">
+                <span>Solicitar carta inicial</span>
               </div>
             </div>
           )}
         </div>
 
         {/* My Hand */}
-        <div className="glass-card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-white">Tu Mano ({gameState.my_hand?.length || 0} cartas)</h3>
-            <div className="flex gap-2 flex-wrap justify-end">
+        <div className="glass-card p-1.5">
+          <div className="flex items-center justify-between mb-1.5">
+            <h3 className="text-sm font-bold text-white">Tu Mano ({gameState.my_hand?.length || 0})</h3>
+            <div className="flex gap-1 flex-wrap justify-end">
               {/* Create Set/Run buttons - only before laying down */}
               {selectedCards.length >= 3 && !gameState.has_laid_down && gameState.has_drawn && (
                 <>
                   <Button
                     onClick={() => createMeld('set')}
                     size="sm"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-[0.7rem] px-2 py-1 h-auto"
                     data-testid="create-set-button"
                   >
-                    Crear Trío
+                    Trío
                   </Button>
                   <Button
                     onClick={() => createMeld('run')}
                     size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                    className="bg-purple-600 hover:bg-purple-700 text-white text-[0.7rem] px-2 py-1 h-auto"
                     data-testid="create-run-button"
                   >
-                    Crear Escalera
+                    Escalera
                   </Button>
                 </>
               )}
-              
+
               {/* Lay Down button */}
               {selectedMelds.length > 0 && !gameState.has_laid_down && (
                 <>
                   <Button
                     onClick={layDownMelds}
                     size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white"
+                    className="bg-green-600 hover:bg-green-700 text-white text-[0.7rem] px-2 py-1 h-auto"
                     data-testid="lay-down-button"
                   >
-                    Bajar Cartas ({selectedMelds.length} comb.)
+                    Bajar ({selectedMelds.length})
                   </Button>
                   <Button
                     onClick={clearMelds}
                     size="sm"
                     variant="outline"
-                    className="border-white/20 hover:bg-white/10 text-white"
+                    className="border-white/20 hover:bg-white/10 text-white text-[0.7rem] px-2 py-1 h-auto"
                   >
-                    Cancelar
+                    ✕
                   </Button>
                 </>
               )}
-              
+
               {/* Place button - only after laying down */}
               {selectedCards.length === 1 && canPlaceCards && (
                 <Button
                   onClick={openPlaceCardPopup}
                   size="sm"
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white"
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white text-[0.7rem] px-2 py-1 h-auto"
                   data-testid="place-card-button"
                 >
-                  <Plus className="h-4 w-4 mr-1" />
+                  <Plus className="h-3 w-3 mr-0.5" />
                   Colocar
                 </Button>
               )}
-              
+
               {/* Discard button */}
               {selectedCards.length === 1 && gameState.has_drawn && isMyTurn() && (
                 <Button
                   onClick={() => discardCard(selectedCards[0])}
                   size="sm"
-                  className="bg-red-600 hover:bg-red-700 text-white"
+                  className="bg-red-600 hover:bg-red-700 text-white text-[0.7rem] px-2 py-1 h-auto"
                   data-testid="discard-selected-button"
                 >
-                  Descartar <ArrowDown className="h-4 w-4 ml-1" />
+                  Descartar <ArrowDown className="h-3 w-3 ml-0.5" />
                 </Button>
               )}
             </div>
@@ -958,14 +922,12 @@ export default function GamePage() {
 
           {/* Pending Melds Preview */}
           {selectedMelds.length > 0 && (
-            <div className="meld-container mb-4">
-              <div className="meld-label">Combinaciones a bajar:</div>
-              <div className="space-y-2">
+            <div className="bg-white/5 rounded p-1 mb-1.5">
+              <div className="text-[0.65rem] text-white/60 mb-0.5">A bajar:</div>
+              <div className="space-y-0.5">
                 {selectedMelds.map((meld, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <span className="text-sm text-white/80">
-                      {meld.type === 'set' ? 'Trío' : 'Escalera'} ({meld.card_ids.length} cartas)
-                    </span>
+                  <div key={idx} className="text-[0.65rem] text-white/80">
+                    {meld.type === 'set' ? 'Trío' : 'Escalera'} ({meld.card_ids.length})
                   </div>
                 ))}
               </div>
@@ -1013,24 +975,15 @@ export default function GamePage() {
             ))}
           </div>
 
-          {/* My Melds - Collapsible on mobile */}
+          {/* My Melds - Always visible, compact */}
           {myPlayer?.melds && myPlayer.melds.length > 0 && (
-            <div className="mt-3 md:mt-6">
-              <div
-                className="md:hidden mobile-section-header"
-                onClick={() => setShowMyMelds(!showMyMelds)}
-              >
-                <span className="mobile-section-title">
-                  Tus Combinaciones ({myPlayer.melds.length})
-                </span>
-                <ChevronDown className={`h-4 w-4 section-toggle-icon ${showMyMelds ? 'rotated' : ''}`} />
-              </div>
-              <h4 className="hidden md:block text-lg font-semibold text-white mb-3">Tus Combinaciones</h4>
-              <div className={`mobile-section-content ${showMyMelds ? 'expanded' : ''} md:!max-h-none space-y-3`}>
+            <div className="mt-1.5">
+              <h4 className="text-xs font-semibold text-white/80 mb-1">Tus Combinaciones</h4>
+              <div className="space-y-0.5">
                 {myPlayer.melds.map((meld, idx) => (
-                  <div key={idx} className="meld-container" data-testid={`my-meld-${idx}`}>
-                    <div className="meld-label">{meld.type === 'set' ? 'Trío' : 'Escalera'}</div>
-                    <div className="flex flex-wrap gap-2">
+                  <div key={idx} className="bg-white/5 rounded p-1" data-testid={`my-meld-${idx}`}>
+                    <div className="text-[0.65rem] text-white/60 mb-0.5">{meld.type === 'set' ? 'Trío' : 'Escalera'}</div>
+                    <div className="flex flex-wrap gap-0.5">
                       <FanCards
                         cards={meld.cards}
                         meldType={meld.type}

@@ -721,34 +721,10 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* Turn Order Display - Compact */}
-        <div className="glass-card p-1.5 mb-2">
-          <h3 className="text-[0.65rem] font-semibold text-white/80 mb-1">Orden de Turnos</h3>
-          <div className="flex flex-wrap gap-1 items-center">
-            {gameState.players.map((player, index) => (
-              <div key={player.id} className="flex items-center gap-1">
-                <div
-                  className={`px-2 py-0.5 rounded text-[0.65rem] font-medium ${
-                    player.id === gameState.current_player_id
-                      ? 'bg-green-600 text-white ring-1 ring-green-400'
-                      : player.id === playerId
-                      ? 'bg-blue-600/30 text-blue-200 border border-blue-400'
-                      : 'bg-white/10 text-white/70'
-                  }`}
-                >
-                  {player.name}
-                  {player.id === playerId && ' (Tú)'}
-                </div>
-                {index < gameState.players.length - 1 && (
-                  <span className="text-white/30 text-xs">→</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Game Table - Compact */}
-        <div className="glass-card p-1.5 mb-2" data-testid="game-table">
+        {/* Game Table & Turn Order - Side by side */}
+        <div className="grid grid-cols-2 gap-2 mb-2">
+          {/* Game Table - Compact */}
+          <div className="glass-card p-1.5" data-testid="game-table">
           <div className="flex items-center justify-center gap-2 mb-1">
             {/* Deck */}
             <div className="text-center">
@@ -842,6 +818,33 @@ export default function GamePage() {
               </div>
             </div>
           )}
+        </div>
+
+          {/* Turn Order Display - Compact */}
+          <div className="glass-card p-1.5">
+            <h3 className="text-[0.65rem] font-semibold text-white/80 mb-1">Orden de Turnos</h3>
+            <div className="flex flex-col gap-1">
+              {gameState.players.map((player, index) => (
+                <div key={player.id} className="flex items-center gap-1">
+                  <div
+                    className={`px-2 py-0.5 rounded text-[0.65rem] font-medium flex-1 text-center ${
+                      player.id === gameState.current_player_id
+                        ? 'bg-green-600 text-white ring-1 ring-green-400'
+                        : player.id === playerId
+                        ? 'bg-blue-600/30 text-blue-200 border border-blue-400'
+                        : 'bg-white/10 text-white/70'
+                    }`}
+                  >
+                    {player.name}
+                    {player.id === playerId && ' (Tú)'}
+                  </div>
+                  {index < gameState.players.length - 1 && (
+                    <span className="text-white/30 text-xs">↓</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* My Hand */}

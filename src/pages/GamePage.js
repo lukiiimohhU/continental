@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card as UICard, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ArrowDown, Users, AlertCircle, Timer, Plus, ChevronDown, Menu, X } from 'lucide-react';
+import { ArrowDown, Users, AlertCircle, Timer, Plus, ChevronDown, Menu, X, Flag, Zap, SkipForward, Edit3, Crown } from 'lucide-react';
 import Card from '@/components/Card';
 import FanCards from '@/components/FanCards';
 import PlaceCardPopup from '@/components/PlaceCardPopup';
@@ -39,6 +39,10 @@ export default function GamePage() {
   const [showOtherPlayers, setShowOtherPlayers] = useState(false);
   const [showMyMelds, setShowMyMelds] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [activeSubmenu, setActiveSubmenu] = useState(null);
+  const [selectedRound, setSelectedRound] = useState(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState(null);
+  const [newScore, setNewScore] = useState('');
 
   // Define callbacks before useEffect that uses them
   const loadRoomData = useCallback(async () => {
@@ -80,6 +84,12 @@ export default function GamePage() {
           toast.info(`${data.player.name} se unió con ${data.player.score} puntos`);
         } else {
           toast.info(`${data.player.name} se unió a la sala`);
+        }
+      } else if (data.type === 'host_transferred') {
+        // Transferencia de host
+        toast.info(data.message);
+        if (data.new_host_id === playerId) {
+          toast.success('¡Ahora eres el anfitrión!');
         }
       }
     };
@@ -190,6 +200,48 @@ export default function GamePage() {
 
     // Mostrar mensaje
     toast.success('Has abandonado la partida');
+  };
+
+  // Funciones de control del host
+  const handleEndRound = (countPoints) => {
+    sendAction('host_end_round', { count_points: countPoints });
+    setShowMenu(false);
+    setActiveSubmenu(null);
+  };
+
+  const handleEndGame = (countPoints) => {
+    sendAction('host_end_game', { count_points: countPoints });
+    setShowMenu(false);
+    setActiveSubmenu(null);
+  };
+
+  const handleJumpToRound = (targetRound, countPoints) => {
+    sendAction('host_jump_to_round', {
+      target_round: targetRound,
+      count_points: countPoints
+    });
+    setSelectedRound(null);
+    setShowMenu(false);
+    setActiveSubmenu(null);
+  };
+
+  const handleChangePlayerScore = () => {
+    if (!selectedPlayerId || newScore === '') return;
+
+    const score = parseInt(newScore, 10);
+    if (isNaN(score) || score < 0) {
+      toast.error('Por favor introduce un número válido (0 o mayor)');
+      return;
+    }
+
+    sendAction('host_change_player_score', {
+      target_player_id: selectedPlayerId,
+      new_score: score
+    });
+    setSelectedPlayerId(null);
+    setNewScore('');
+    setShowMenu(false);
+    setActiveSubmenu(null);
   };
 
   const drawCard = (fromPile) => {
@@ -617,6 +669,7 @@ export default function GamePage() {
   };
 
   const myPlayer = gameState?.players.find(p => p.id === playerId);
+  const isHost = myPlayer?.is_host || false;
 
   // Check if anyone has laid down (for showing place button)
   const anyoneHasLaidDown = gameState?.players.some(p => p.has_laid_down) || false;
@@ -1051,15 +1104,27 @@ export default function GamePage() {
       {showMenu && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          onClick={() => setShowMenu(false)}
+          onClick={() => {
+            setShowMenu(false);
+            setActiveSubmenu(null);
+            setSelectedRound(null);
+            setSelectedPlayerId(null);
+            setNewScore('');
+          }}
         >
           <div
-            className="glass-card p-6 max-w-sm w-full mx-4 relative"
+            className="glass-card p-6 max-w-sm w-full mx-4 relative max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Botón de cerrar (X) */}
             <button
-              onClick={() => setShowMenu(false)}
+              onClick={() => {
+                setShowMenu(false);
+                setActiveSubmenu(null);
+                setSelectedRound(null);
+                setSelectedPlayerId(null);
+                setNewScore('');
+              }}
               className="absolute top-4 right-4 p-1 hover:bg-white/10 rounded transition-colors"
               aria-label="Cerrar menú"
             >
@@ -1067,12 +1132,239 @@ export default function GamePage() {
             </button>
 
             {/* Contenido del menú */}
-            <h3 className="text-xl font-bold text-white mb-6">Menú</h3>
+            <div className="flex items-center gap-2 mb-6">
+              {isHost && <Crown className="h-5 w-5 text-yellow-400" />}
+              <h3 className="text-xl font-bold text-white">
+                {isHost ? 'Panel de Control' : 'Menú'}
+              </h3>
+            </div>
+
+            {/* Controles del Host */}
+            {isHost && (
+              <div className="mb-4 pb-4 border-b border-white/20">
+                <h4 className="text-xs font-semibold text-white/60 mb-3 uppercase tracking-wide">
+                  Controles del Anfitrión
+                </h4>
+
+                {/* Finalizar Ronda */}
+                <div className="mb-2">
+                  <button
+                    onClick={() => setActiveSubmenu(activeSubmenu === 'end-round' ? null : 'end-round')}
+                    className="w-full flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors text-white text-sm font-medium"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Flag className="h-4 w-4" />
+                      <span>Finalizar Ronda</span>
+                    </div>
+                    <span className={`transform transition-transform ${activeSubmenu === 'end-round' ? 'rotate-180' : ''}`}>
+                      ▼
+                    </span>
+                  </button>
+                  {activeSubmenu === 'end-round' && (
+                    <div className="mt-2 ml-4 space-y-1">
+                      <button
+                        onClick={() => {
+                          if (window.confirm('¿Finalizar ronda y contar puntos?')) {
+                            handleEndRound(true);
+                          }
+                        }}
+                        className="w-full p-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/30 rounded text-white text-xs"
+                      >
+                        Contar Puntos
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm('¿Finalizar ronda sin contar puntos (0 pts)?')) {
+                            handleEndRound(false);
+                          }
+                        }}
+                        className="w-full p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-white text-xs"
+                      >
+                        Sin Contar Puntos (0 pts)
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Finalizar Partida */}
+                <div className="mb-2">
+                  <button
+                    onClick={() => setActiveSubmenu(activeSubmenu === 'end-game' ? null : 'end-game')}
+                    className="w-full flex items-center justify-between p-3 bg-red-600/10 hover:bg-red-600/20 border border-red-600/30 rounded-lg transition-colors text-white text-sm font-medium"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4" />
+                      <span>Finalizar Partida</span>
+                    </div>
+                    <span className={`transform transition-transform ${activeSubmenu === 'end-game' ? 'rotate-180' : ''}`}>
+                      ▼
+                    </span>
+                  </button>
+                  {activeSubmenu === 'end-game' && (
+                    <div className="mt-2 ml-4 space-y-1">
+                      <button
+                        onClick={() => {
+                          if (window.confirm('¿Finalizar partida y contar puntos?')) {
+                            handleEndGame(true);
+                          }
+                        }}
+                        className="w-full p-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/30 rounded text-white text-xs"
+                      >
+                        Contar Puntos
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm('¿Finalizar partida sin contar puntos (0 pts)?')) {
+                            handleEndGame(false);
+                          }
+                        }}
+                        className="w-full p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-white text-xs"
+                      >
+                        Sin Contar Puntos (0 pts)
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Saltar a Ronda */}
+                <div className="mb-2">
+                  <button
+                    onClick={() => setActiveSubmenu(activeSubmenu === 'jump-round' ? null : 'jump-round')}
+                    className="w-full flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors text-white text-sm font-medium"
+                  >
+                    <div className="flex items-center gap-2">
+                      <SkipForward className="h-4 w-4" />
+                      <span>Saltar a Ronda</span>
+                    </div>
+                    <span className={`transform transition-transform ${activeSubmenu === 'jump-round' ? 'rotate-180' : ''}`}>
+                      ▼
+                    </span>
+                  </button>
+                  {activeSubmenu === 'jump-round' && (
+                    <div className="mt-2 ml-4">
+                      {!selectedRound ? (
+                        <div className="space-y-1 max-h-60 overflow-y-auto">
+                          {[
+                            { round: 1, name: 'Ronda 1: 2 Tríos' },
+                            { round: 2, name: 'Ronda 2: 1 Trío + 1 Escalera' },
+                            { round: 3, name: 'Ronda 3: 2 Escaleras' },
+                            { round: 4, name: 'Ronda 4: 3 Tríos' },
+                            { round: 5, name: 'Ronda 5: 2 Tríos + 1 Escalera' },
+                            { round: 6, name: 'Ronda 6: 1 Trío + 2 Escaleras' },
+                            { round: 7, name: 'Ronda 7: 3 Escaleras' }
+                          ].map(({ round, name }) => (
+                            <button
+                              key={round}
+                              onClick={() => setSelectedRound(round)}
+                              className="w-full p-2 bg-white/5 hover:bg-blue-600/30 border border-white/10 rounded text-white text-xs text-left"
+                            >
+                              {name}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <p className="text-xs font-semibold text-blue-400 p-2 bg-blue-600/20 border-l-2 border-blue-600 rounded">
+                            Ronda {selectedRound}
+                          </p>
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`¿Saltar a ronda ${selectedRound} contando puntos?`)) {
+                                handleJumpToRound(selectedRound, true);
+                              }
+                            }}
+                            className="w-full p-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/30 rounded text-white text-xs"
+                          >
+                            Contar Puntos
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`¿Saltar a ronda ${selectedRound} sin contar puntos?`)) {
+                                handleJumpToRound(selectedRound, false);
+                              }
+                            }}
+                            className="w-full p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-white text-xs"
+                          >
+                            Sin Contar Puntos (0 pts)
+                          </button>
+                          <button
+                            onClick={() => setSelectedRound(null)}
+                            className="w-full p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-white text-xs"
+                          >
+                            ← Volver
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Cambiar Puntos */}
+                <div className="mb-2">
+                  <button
+                    onClick={() => setActiveSubmenu(activeSubmenu === 'change-score' ? null : 'change-score')}
+                    className="w-full flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors text-white text-sm font-medium"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Edit3 className="h-4 w-4" />
+                      <span>Cambiar Puntos</span>
+                    </div>
+                    <span className={`transform transition-transform ${activeSubmenu === 'change-score' ? 'rotate-180' : ''}`}>
+                      ▼
+                    </span>
+                  </button>
+                  {activeSubmenu === 'change-score' && (
+                    <div className="mt-2 ml-4 space-y-2">
+                      <label className="text-xs font-medium text-white/80">Jugador:</label>
+                      <select
+                        value={selectedPlayerId || ''}
+                        onChange={(e) => {
+                          setSelectedPlayerId(e.target.value);
+                          const player = gameState?.players.find(p => p.id === e.target.value);
+                          if (player) {
+                            setNewScore(player.score.toString());
+                          }
+                        }}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded text-white text-xs"
+                      >
+                        <option value="">Selecciona un jugador</option>
+                        {gameState?.players.map(player => (
+                          <option key={player.id} value={player.id}>
+                            {player.name} ({player.score} pts)
+                          </option>
+                        ))}
+                      </select>
+
+                      {selectedPlayerId && (
+                        <>
+                          <label className="text-xs font-medium text-white/80">Nuevos Puntos:</label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={newScore}
+                            onChange={(e) => setNewScore(e.target.value)}
+                            placeholder="0"
+                            className="w-full p-2 bg-white/10 border border-white/20 rounded text-white text-xs"
+                          />
+                          <button
+                            onClick={handleChangePlayerScore}
+                            className="w-full p-2 bg-green-600 hover:bg-green-700 rounded text-white text-xs font-medium"
+                          >
+                            Guardar
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Abandonar Partida (todos) */}
             <button
               onClick={() => {
                 if (window.confirm('¿Estás seguro de que quieres abandonar la partida?')) {
                   handleLeaveGame();
-                  setShowMenu(false);
                 }
               }}
               className="w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"

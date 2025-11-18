@@ -550,15 +550,15 @@ h1, h2, h3, h4, h5, h6 {
 
   /* Compact hand grid on mobile */
   .card-grid-mobile {
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)) !important;
-    gap: 6px !important;
-    padding: 6px !important;
+    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)) !important;
+    gap: 5px !important;
+    padding: 5px !important;
   }
 
   .card-grid-mobile .card-element {
-    width: 50px !important;
-    height: 70px !important;
-    font-size: 0.9rem !important;
+    width: 45px !important;
+    height: 63px !important;
+    font-size: 0.85rem !important;
   }
 
   .card-grid-mobile .card-rank,
@@ -630,6 +630,21 @@ h1, h2, h3, h4, h5, h6 {
   .player-melds-container {
     flex-direction: row;
     flex-wrap: wrap;
+  }
+}
+
+/* Own melds container - responsive to orientation */
+.own-melds-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (orientation: landscape) {
+  .own-melds-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 }
 

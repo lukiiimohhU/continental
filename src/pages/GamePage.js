@@ -992,17 +992,14 @@ export default function GamePage() {
           {myPlayer?.melds && myPlayer.melds.length > 0 && (
             <div className="glass-card p-1.5 own-melds-section">
               <h4 className="text-xs font-semibold text-white/80 mb-1">Tus Combinaciones</h4>
-              <div className="space-y-0.5">
+              <div className="own-melds-container">
                 {myPlayer.melds.map((meld, idx) => (
-                  <div key={idx} className="bg-white/5 rounded p-1" data-testid={`my-meld-${idx}`}>
-                    <div className="text-[0.65rem] text-white/60 mb-0.5">{meld.type === 'set' ? 'Trío' : 'Escalera'}</div>
-                    <div className="flex flex-wrap gap-0.5">
-                      <FanCards
-                        cards={meld.cards}
-                        meldType={meld.type}
-                      />
-                    </div>
-                  </div>
+                  <FanCards
+                    key={idx}
+                    cards={meld.cards}
+                    meldType={meld.type}
+                    data-testid={`my-meld-${idx}`}
+                  />
                 ))}
               </div>
             </div>

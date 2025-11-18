@@ -8,8 +8,8 @@ export const FanCards = ({ cards, meldType, expanded = false }) => {
 
   // For mobile, show collapsed fan by default with real Card components
   if (!isExpanded) {
-    const cardWidth = 50;
-    const overlapAmount = 20; // Cards will overlap by this amount
+    const cardWidth = 40;
+    const overlapAmount = 16; // Cards will overlap by this amount
     const containerWidth = cardWidth + (cards.length - 1) * overlapAmount;
 
     return (
@@ -18,11 +18,11 @@ export const FanCards = ({ cards, meldType, expanded = false }) => {
         onClick={() => setIsExpanded(true)}
         style={{
           width: `${containerWidth}px`,
-          height: '70px',
+          height: '56px',
           position: 'relative',
           cursor: 'pointer',
           display: 'inline-block',
-          marginBottom: '24px'
+          marginBottom: '16px'
         }}
       >
         {cards.map((card, index) => (
@@ -38,11 +38,11 @@ export const FanCards = ({ cards, meldType, expanded = false }) => {
           >
             <Card
               card={card}
-              style={{ width: '50px', height: '70px' }}
+              style={{ width: '40px', height: '56px' }}
             />
           </div>
         ))}
-        <div className="fan-card-label">
+        <div className="fan-card-label" style={{ bottom: '-14px', fontSize: '0.6rem' }}>
           {meldType === 'set' ? 'Trío' : 'Escalera'} ({cards.length})
         </div>
       </div>

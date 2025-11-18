@@ -49,6 +49,12 @@ export default function GamePage() {
     try {
       const response = await fetch(`${BACKEND_URL}/api/room/${roomCode}`);
       const data = await response.json();
+      console.log('=== DEBUG GAME PAGE ROOM DATA ===');
+      console.log('Room data:', data);
+      console.log('Host ID:', data.host_id);
+      console.log('Player ID:', playerId);
+      console.log('Is host:', data.host_id === playerId);
+      console.log('================================');
       setRoomData(data);
     } catch (error) {
       console.error('Error loading room:', error);
@@ -669,7 +675,7 @@ export default function GamePage() {
   };
 
   const myPlayer = gameState?.players.find(p => p.id === playerId);
-  const isHost = myPlayer?.is_host || false;
+  const isHost = roomData?.host_id === playerId;
 
   // Check if anyone has laid down (for showing place button)
   const anyoneHasLaidDown = gameState?.players.some(p => p.has_laid_down) || false;

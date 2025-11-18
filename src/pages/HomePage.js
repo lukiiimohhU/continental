@@ -48,19 +48,25 @@ export default function HomePage() {
       return;
     }
 
+    // Validar que el código sea de 3 dígitos
+    if (!/^[0-9]{3}$/.test(roomCode)) {
+      toast.error('El código debe tener 3 dígitos');
+      return;
+    }
+
     setIsJoining(true);
     try {
       const response = await axios.post(`${API}/room/join`, {
-        room_code: roomCode.toUpperCase(),
+        room_code: roomCode,
         player_name: playerName
       });
-      
+
       const { player_id } = response.data;
       localStorage.setItem('player_id', player_id);
       localStorage.setItem('player_name', playerName);
-      
+
       toast.success('¡Te uniste a la sala!');
-      navigate(`/lobby/${roomCode.toUpperCase()}`);
+      navigate(`/lobby/${roomCode}`);
     } catch (error) {
       console.error('Error al unirse:', error);
       toast.error(error.response?.data?.detail || 'Error al unirse a la sala');
@@ -119,9 +125,15 @@ export default function HomePage() {
                 data-testid="join-room-name-input"
               />
               <Input
-                placeholder="Código de Sala (ej. ABC123)"
+                placeholder="Código de Sala (ej. 123)"
                 value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                onChange={(e) => {
+                  // Solo permitir números y máximo 3 dígitos
+                  const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 3);
+                  setRoomCode(value);
+                }}
+                inputMode="numeric"
+                maxLength={3}
                 className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
                 data-testid="join-room-code-input"
                 onKeyPress={(e) => e.key === 'Enter' && joinRoom()}

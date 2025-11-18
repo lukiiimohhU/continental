@@ -1,18 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Trophy, ArrowRight } from 'lucide-react';
+import { Trophy, ArrowRight, Copy, UserPlus } from 'lucide-react';
+import { toast } from 'sonner';
 
-export const RoundEndScreen = ({ 
-  roundNumber, 
-  winnerName, 
-  players, 
-  onContinue, 
+export const RoundEndScreen = ({
+  roundNumber,
+  winnerName,
+  players,
+  onContinue,
   isHost,
-  nextRound 
+  nextRound,
+  roomCode
 }) => {
   // Sort players by score (lowest first)
   const sortedPlayers = [...players].sort((a, b) => a.score - b.score);
+  const [showShareCode, setShowShareCode] = useState(false);
+
+  const copyRoomCode = () => {
+    navigator.clipboard.writeText(roomCode);
+    toast.success('¡Código copiado!');
+  };
 
   return (
     <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 overflow-y-auto">
@@ -88,6 +96,43 @@ export const RoundEndScreen = ({
                   </div>
                   <ArrowRight className="h-8 w-8 text-white/40" />
                 </div>
+              </div>
+            )}
+
+            {/* Share Room Code Section */}
+            {roomCode && (
+              <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                <button
+                  onClick={() => setShowShareCode(!showShareCode)}
+                  className="flex items-center gap-2 text-white hover:text-white/80 transition-colors mb-3"
+                >
+                  <UserPlus className="h-5 w-5" />
+                  <span className="font-semibold">Invitar más jugadores</span>
+                </button>
+
+                {showShareCode && (
+                  <div className="space-y-2">
+                    <p className="text-white/60 text-sm">
+                      Los nuevos jugadores pueden unirse ahora usando el código:
+                    </p>
+                    <div className="flex items-center gap-2 bg-white/10 p-3 rounded-lg">
+                      <code className="flex-1 text-white font-mono text-2xl font-bold tracking-widest text-center">
+                        {roomCode}
+                      </code>
+                      <Button
+                        onClick={copyRoomCode}
+                        size="sm"
+                        variant="ghost"
+                        className="text-white hover:bg-white/10"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-white/40 text-xs italic">
+                      Los nuevos jugadores empezarán con puntos aleatorios similares a los jugadores actuales
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 

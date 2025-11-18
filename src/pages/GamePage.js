@@ -735,100 +735,108 @@ export default function GamePage() {
         <div className="flex gap-2 mb-2">
           {/* Game Table - Compact */}
           <div className="glass-card p-1.5 flex-1" data-testid="game-table">
-          <div className="flex items-center justify-center gap-2 mb-1">
-            {/* Deck */}
-            <div className="text-center">
-              <div
-                onClick={() => drawCard('deck')}
-                className="cursor-pointer hover:scale-105 transition-transform"
-                style={{ width: '60px', height: '84px', position: 'relative' }}
-                data-testid="draw-deck-button"
-              >
-                <div className="card-back" style={{ width: '60px', height: '84px' }}>
-                  <div className="card-back-pattern"></div>
-                  <div className="card-count-badge" style={{ fontSize: '0.875rem', padding: '4px 8px' }}>
-                    {gameState.deck_count}
+            <div className="game-table-inner">
+              {/* Deck and Discard Area */}
+              <div className="deck-area">
+                <div className="flex items-center justify-center gap-2">
+                  {/* Deck */}
+                  <div className="text-center">
+                    <div
+                      onClick={() => drawCard('deck')}
+                      className="cursor-pointer hover:scale-105 transition-transform"
+                      style={{ width: '60px', height: '84px', position: 'relative' }}
+                      data-testid="draw-deck-button"
+                    >
+                      <div className="card-back" style={{ width: '60px', height: '84px' }}>
+                        <div className="card-back-pattern"></div>
+                        <div className="card-count-badge" style={{ fontSize: '0.875rem', padding: '4px 8px' }}>
+                          {gameState.deck_count}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-white/60 text-[0.65rem] mt-0.5">Mazo</div>
+                  </div>
+
+                  {/* Discard Pile */}
+                  <div className="text-center relative">
+                    {gameState.discard_pile_top ? (
+                      <div className="flex flex-col items-center">
+                        <div
+                          className={`flex items-center justify-center rounded-lg ${
+                            canRequestCard ? 'ring-2 ring-green-400' : 'bg-white/5'
+                          }`}
+                          style={{
+                            width: '60px',
+                            height: '84px',
+                            padding: '4px'
+                          }}
+                          onClick={() => {
+                            if (canRequestCard) {
+                              requestDiscardCard();
+                            } else if (isMyTurn() && gameState.turn_phase === 'draw' && !gameState.has_drawn) {
+                              drawCard('discard');
+                            }
+                          }}
+                        >
+                          <Card
+                            card={gameState.discard_pile_top}
+                            className="cursor-pointer"
+                            style={{ width: '56px', height: '78px' }}
+                            data-testid="draw-discard-button"
+                          />
+                        </div>
+                        {gameState.waiting_for_requests && waitTimeLeft > 0 && (
+                          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 flex items-center gap-1 bg-white/10 backdrop-blur px-2 py-0.5 rounded-full">
+                            <Timer className="h-3 w-3 text-white animate-pulse" />
+                            <span className="text-white font-bold text-xs">{waitTimeLeft}s</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ width: '60px', height: '84px' }} className="flex items-center justify-center bg-white/5 rounded-lg border border-dashed border-white/20">
+                        <div className="text-[0.65rem] text-white/60">Vacío</div>
+                      </div>
+                    )}
+                    <div className="text-white/60 text-[0.65rem] mt-0.5">Descarte</div>
                   </div>
                 </div>
               </div>
-              <div className="text-white/60 text-[0.65rem] mt-0.5">Mazo</div>
-            </div>
 
-            {/* Discard Pile */}
-            <div className="text-center relative">
-              {gameState.discard_pile_top ? (
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`flex items-center justify-center rounded-lg ${
-                      canRequestCard ? 'ring-2 ring-green-400' : 'bg-white/5'
-                    }`}
-                    style={{
-                      width: '60px',
-                      height: '84px',
-                      padding: '4px'
-                    }}
-                    onClick={() => {
-                      if (canRequestCard) {
-                        requestDiscardCard();
-                      } else if (isMyTurn() && gameState.turn_phase === 'draw' && !gameState.has_drawn) {
-                        drawCard('discard');
-                      }
-                    }}
-                  >
-                    <Card
-                      card={gameState.discard_pile_top}
-                      className="cursor-pointer"
-                      style={{ width: '56px', height: '78px' }}
-                      data-testid="draw-discard-button"
-                    />
-                  </div>
-                  {gameState.waiting_for_requests && waitTimeLeft > 0 && (
-                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 flex items-center gap-1 bg-white/10 backdrop-blur px-2 py-0.5 rounded-full">
-                      <Timer className="h-3 w-3 text-white animate-pulse" />
-                      <span className="text-white font-bold text-xs">{waitTimeLeft}s</span>
+              {/* Turn Indicators - Will appear on left in landscape */}
+              <div className="turn-indicators">
+                {/* Turn Indicator - Compact */}
+                {isMyTurn() && !gameState.waiting_for_requests && (
+                  <div className="text-center">
+                    <div className="inline-flex items-center gap-1 bg-white text-black px-2 py-0.5 rounded-full text-[0.7rem] font-semibold" data-testid="your-turn-indicator">
+                      <span>TU TURNO</span>
+                      {gameState.turn_phase === 'draw' && !gameState.has_drawn && <span>- Roba</span>}
+                      {gameState.turn_phase === 'action' && !gameState.has_laid_down && <span>- Baja o descarta</span>}
+                      {gameState.turn_phase === 'action' && gameState.has_laid_down && <span>- Coloca o descarta</span>}
                     </div>
-                  )}
-                </div>
-              ) : (
-                <div style={{ width: '60px', height: '84px' }} className="flex items-center justify-center bg-white/5 rounded-lg border border-dashed border-white/20">
-                  <div className="text-[0.65rem] text-white/60">Vacío</div>
-                </div>
-              )}
-              <div className="text-white/60 text-[0.65rem] mt-0.5">Descarte</div>
+                  </div>
+                )}
+
+                {/* Waiting Period Message - Compact */}
+                {gameState.waiting_for_requests && (
+                  <div className="text-center">
+                    <div className="inline-flex items-center gap-1 bg-green-600 text-white px-2 py-0.5 rounded-full text-[0.7rem] font-semibold animate-pulse">
+                      <Timer className="h-3 w-3" />
+                      <span>Solicitud activa - {waitTimeLeft}s</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* First Draw Message - Compact */}
+                {gameState.first_draw_of_round && !isMyTurn() && gameState.discard_pile_top && (
+                  <div className="text-center">
+                    <div className="inline-flex items-center gap-1 bg-blue-600 text-white px-2 py-0.5 rounded-full text-[0.7rem] font-semibold">
+                      <span>Solicitar carta inicial</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-
-          {/* Turn Indicator - Compact */}
-          {isMyTurn() && !gameState.waiting_for_requests && (
-            <div className="text-center mt-1">
-              <div className="inline-flex items-center gap-1 bg-white text-black px-2 py-0.5 rounded-full text-[0.7rem] font-semibold" data-testid="your-turn-indicator">
-                <span>TU TURNO</span>
-                {gameState.turn_phase === 'draw' && !gameState.has_drawn && <span>- Roba</span>}
-                {gameState.turn_phase === 'action' && !gameState.has_laid_down && <span>- Baja o descarta</span>}
-                {gameState.turn_phase === 'action' && gameState.has_laid_down && <span>- Coloca o descarta</span>}
-              </div>
-            </div>
-          )}
-
-          {/* Waiting Period Message - Compact */}
-          {gameState.waiting_for_requests && (
-            <div className="text-center mt-1">
-              <div className="inline-flex items-center gap-1 bg-green-600 text-white px-2 py-0.5 rounded-full text-[0.7rem] font-semibold animate-pulse">
-                <Timer className="h-3 w-3" />
-                <span>Solicitud activa - {waitTimeLeft}s</span>
-              </div>
-            </div>
-          )}
-
-          {/* First Draw Message - Compact */}
-          {gameState.first_draw_of_round && !isMyTurn() && gameState.discard_pile_top && (
-            <div className="text-center mt-1">
-              <div className="inline-flex items-center gap-1 bg-blue-600 text-white px-2 py-0.5 rounded-full text-[0.7rem] font-semibold">
-                <span>Solicitar carta inicial</span>
-              </div>
-            </div>
-          )}
-        </div>
 
           {/* Turn Order Display - Compact, Dynamic Width */}
           <div className="glass-card p-1.5 w-auto">

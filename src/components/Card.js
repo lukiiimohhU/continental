@@ -17,7 +17,7 @@ export const Card = ({ card, selected, onClick, className = '', style = {} }) =>
       const topBottomSize = width <= 40 ? '0.3rem' : width <= 45 ? '0.33rem' : width <= 50 ? '0.35rem' : width < 60 ? '0.4rem' : width < 70 ? '0.5rem' : '0.6rem';
       const iconSize = width <= 40 ? '1rem' : width <= 45 ? '1.1rem' : width <= 50 ? '1.2rem' : width < 60 ? '1.5rem' : width < 70 ? '2rem' : '2.5rem';
       const verticalPadding = width <= 40 ? '1px' : width <= 50 ? '2px' : '4px';
-      const emojiMargin = width <= 40 ? '2px' : width <= 50 ? '3px' : '4px';
+      const emojiMargin = width <= 40 ? '3px' : width <= 45 ? '4px' : width <= 50 ? '5px' : '6px';
 
       return (
         <div className="flex flex-col items-center justify-center h-full" style={{ padding: `${verticalPadding} 2px` }}>

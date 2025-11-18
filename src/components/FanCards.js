@@ -22,7 +22,7 @@ export const FanCards = ({ cards, meldType, expanded = false }) => {
           position: 'relative',
           cursor: 'pointer',
           display: 'inline-block',
-          marginBottom: '16px'
+          marginBottom: '4px'
         }}
       >
         {cards.map((card, index) => (
@@ -42,9 +42,6 @@ export const FanCards = ({ cards, meldType, expanded = false }) => {
             />
           </div>
         ))}
-        <div className="fan-card-label" style={{ bottom: '-14px', fontSize: '0.6rem' }}>
-          {meldType === 'set' ? 'Trío' : 'Escalera'} ({cards.length})
-        </div>
       </div>
     );
   }

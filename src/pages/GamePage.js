@@ -1116,7 +1116,7 @@ export default function GamePage() {
       {/* Menu Modal */}
       {showMenu && (
         <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
           onClick={() => {
             setShowMenu(false);
             setActiveSubmenu(null);
@@ -1126,7 +1126,7 @@ export default function GamePage() {
           }}
         >
           <div
-            className="glass-card p-6 max-w-sm w-full mx-4 relative max-h-[90vh] overflow-y-auto border border-white/20 shadow-2xl"
+            className="bg-zinc-900 border border-white/20 rounded-xl p-6 max-w-sm w-full mx-4 relative max-h-[90vh] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Botón de cerrar (X) */}
@@ -1181,7 +1181,7 @@ export default function GamePage() {
                             handleEndRound(true);
                           }
                         }}
-                        className="w-full p-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/30 rounded text-white text-xs"
+                        className="w-full p-2 bg-blue-600 hover:bg-blue-700 border border-blue-600 rounded text-white text-xs"
                       >
                         Contar Puntos
                       </button>
@@ -1191,7 +1191,7 @@ export default function GamePage() {
                             handleEndRound(false);
                           }
                         }}
-                        className="w-full p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-white text-xs"
+                        className="w-full p-2 border border-white/20 hover:bg-white/10 text-white rounded text-xs"
                       >
                         Sin Contar Puntos (0 pts)
                       </button>
@@ -1203,10 +1203,10 @@ export default function GamePage() {
                 <div className="mb-2">
                   <button
                     onClick={() => setActiveSubmenu(activeSubmenu === 'end-game' ? null : 'end-game')}
-                    className="w-full flex items-center justify-between p-3 bg-red-600/10 hover:bg-red-600/20 border border-red-600/30 rounded-lg transition-colors text-white text-sm font-medium"
+                    className="w-full flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors text-white text-sm font-medium"
                   >
                     <div className="flex items-center gap-2">
-                      <Zap className="h-4 w-4" />
+                      <Zap className="h-4 w-4 text-red-400" />
                       <span>Finalizar Partida</span>
                     </div>
                     <span className={`transform transition-transform ${activeSubmenu === 'end-game' ? 'rotate-180' : ''}`}>
@@ -1221,7 +1221,7 @@ export default function GamePage() {
                             handleEndGame(true);
                           }
                         }}
-                        className="w-full p-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/30 rounded text-white text-xs"
+                        className="w-full p-2 bg-blue-600 hover:bg-blue-700 border border-blue-600 rounded text-white text-xs"
                       >
                         Contar Puntos
                       </button>
@@ -1231,7 +1231,7 @@ export default function GamePage() {
                             handleEndGame(false);
                           }
                         }}
-                        className="w-full p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-white text-xs"
+                        className="w-full p-2 border border-white/20 hover:bg-white/10 text-white rounded text-xs"
                       >
                         Sin Contar Puntos (0 pts)
                       </button>
@@ -1269,7 +1269,7 @@ export default function GamePage() {
                             <button
                               key={round}
                               onClick={() => setSelectedRound(round)}
-                              className="w-full p-2 bg-white/5 hover:bg-blue-600/30 border border-white/10 rounded text-white text-xs text-left"
+                              className="w-full p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-white text-xs text-left"
                             >
                               {name}
                             </button>
@@ -1277,7 +1277,7 @@ export default function GamePage() {
                         </div>
                       ) : (
                         <div className="space-y-2">
-                          <p className="text-xs font-semibold text-blue-400 p-2 bg-blue-600/20 border-l-2 border-blue-600 rounded">
+                          <p className="text-xs font-semibold text-white p-2 bg-zinc-800 border-l-2 border-blue-600 rounded">
                             Ronda {selectedRound}
                           </p>
                           <button
@@ -1286,7 +1286,7 @@ export default function GamePage() {
                                 handleJumpToRound(selectedRound, true);
                               }
                             }}
-                            className="w-full p-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/30 rounded text-white text-xs"
+                            className="w-full p-2 bg-blue-600 hover:bg-blue-700 border border-blue-600 rounded text-white text-xs"
                           >
                             Contar Puntos
                           </button>
@@ -1296,13 +1296,13 @@ export default function GamePage() {
                                 handleJumpToRound(selectedRound, false);
                               }
                             }}
-                            className="w-full p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-white text-xs"
+                            className="w-full p-2 border border-white/20 hover:bg-white/10 text-white rounded text-xs"
                           >
                             Sin Contar Puntos (0 pts)
                           </button>
                           <button
                             onClick={() => setSelectedRound(null)}
-                            className="w-full p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-white text-xs"
+                            className="w-full p-2 border border-white/20 hover:bg-white/10 text-white rounded text-xs"
                           >
                             ← Volver
                           </button>
@@ -1361,7 +1361,7 @@ export default function GamePage() {
                           />
                           <button
                             onClick={handleChangePlayerScore}
-                            className="w-full p-2 bg-green-600/20 hover:bg-green-600/30 border border-green-600/40 rounded text-white text-xs font-medium"
+                            className="w-full p-2 bg-green-600 hover:bg-green-700 border border-green-600 rounded text-white text-xs font-medium"
                           >
                             Guardar
                           </button>
@@ -1380,7 +1380,7 @@ export default function GamePage() {
                   handleLeaveGame();
                 }
               }}
-              className="w-full py-3 px-4 bg-red-600/20 hover:bg-red-600/30 border-2 border-red-600/50 text-white font-semibold rounded-lg transition-colors"
+              className="w-full py-3 px-4 border-2 border-white/20 hover:bg-white/10 text-white font-semibold rounded-lg transition-colors"
             >
               Abandonar Partida
             </button>

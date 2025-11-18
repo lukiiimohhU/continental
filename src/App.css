@@ -619,13 +619,33 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.2 !important;
 }
 
-/* Fix toast position in portrait mode */
-@media (orientation: portrait) {
-  .toaster {
-    position: fixed !important;
-    top: 1rem !important;
-    right: 1rem !important;
+/* Fix toast position in all orientations */
+:root {
+  --toaster-width: 220px;
+}
+
+[data-sonner-toaster] {
+  position: fixed !important;
+  top: 1rem !important;
+  right: 1rem !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: var(--toaster-width) !important;
+  max-width: var(--toaster-width) !important;
+}
+
+[data-sonner-toaster][data-x-position="right"] {
+  right: 1rem !important;
+  left: auto !important;
+}
+
+/* Ensure toasts stay within viewport */
+@media (max-width: 640px) {
+  [data-sonner-toaster] {
+    right: 0.5rem !important;
     left: auto !important;
+    width: calc(100vw - 1rem) !important;
+    max-width: 220px !important;
   }
 }
 

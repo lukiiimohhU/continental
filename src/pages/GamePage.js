@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card as UICard, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ArrowDown, Users, AlertCircle, Timer, Plus, ChevronDown } from 'lucide-react';
+import { ArrowDown, Users, AlertCircle, Timer, Plus, ChevronDown, Menu, X } from 'lucide-react';
 import Card from '@/components/Card';
 import FanCards from '@/components/FanCards';
 import PlaceCardPopup from '@/components/PlaceCardPopup';
@@ -38,6 +38,7 @@ export default function GamePage() {
   // Mobile UI states
   const [showOtherPlayers, setShowOtherPlayers] = useState(false);
   const [showMyMelds, setShowMyMelds] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   // Define callbacks before useEffect that uses them
   const loadRoomData = useCallback(async () => {
@@ -70,6 +71,16 @@ export default function GamePage() {
         toast.success(data.message);
       } else if (data.type === 'game_started') {
         toast.success(data.message);
+      } else if (data.type === 'player_left') {
+        // Jugador abandonó la partida
+        toast.info(data.message || `${data.player_name} ha abandonado la partida`);
+      } else if (data.type === 'player_joined') {
+        // Jugador se unió (incluyendo mid-game)
+        if (data.mid_game_join) {
+          toast.info(`${data.player.name} se unió con ${data.player.score} puntos`);
+        } else {
+          toast.info(`${data.player.name} se unió a la sala`);
+        }
       }
     };
 
@@ -163,6 +174,22 @@ export default function GamePage() {
 
   const continueToNextRound = () => {
     sendAction('continue_to_next_round');
+  };
+
+  const handleLeaveGame = () => {
+    // Enviar acción al backend
+    sendAction('leave_game');
+
+    // Cerrar WebSocket
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
+
+    // Redirigir al home
+    navigate('/');
+
+    // Mostrar mensaje
+    toast.success('Has abandonado la partida');
   };
 
   const drawCard = (fromPile) => {
@@ -618,6 +645,7 @@ export default function GamePage() {
         isHost={roomData?.host_id === playerId}
         nextRound={gameState.round + 1}
         onContinue={continueToNextRound}
+        roomCode={roomCode}
       />
     );
   }
@@ -671,17 +699,27 @@ export default function GamePage() {
                 <code className="text-white">{roomCode}</code>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-[0.65rem] md:text-sm text-white/60">Objetivo:</div>
-              <div className="text-white text-[0.7rem] md:text-base font-semibold">
-                {gameState.round_requirements.sets.length > 0 && (
-                  <span>{gameState.round_requirements.sets.length} Trío(s) </span>
-                )}
-                {gameState.round_requirements.runs.length > 0 && (
-                  <span>{gameState.round_requirements.runs.length} Escalera(s)</span>
-                )}
-                {gameState.round === 7 && <span>3 Escaleras + Bajar todo</span>}
+            <div className="flex items-center gap-2">
+              <div className="text-right">
+                <div className="text-[0.65rem] md:text-sm text-white/60">Objetivo:</div>
+                <div className="text-white text-[0.7rem] md:text-base font-semibold">
+                  {gameState.round_requirements.sets.length > 0 && (
+                    <span>{gameState.round_requirements.sets.length} Trío(s) </span>
+                  )}
+                  {gameState.round_requirements.runs.length > 0 && (
+                    <span>{gameState.round_requirements.runs.length} Escalera(s)</span>
+                  )}
+                  {gameState.round === 7 && <span>3 Escaleras + Bajar todo</span>}
+                </div>
               </div>
+              {/* Botón del menú hamburguesa */}
+              <button
+                onClick={() => setShowMenu(true)}
+                className="p-2 hover:bg-white/10 rounded transition-colors"
+                aria-label="Abrir menú"
+              >
+                <Menu className="h-5 w-5 md:h-6 md:w-6" />
+              </button>
             </div>
           </div>
         </div>
@@ -1008,6 +1046,42 @@ export default function GamePage() {
           )}
         </div>
       </div>
+
+      {/* Menu Modal */}
+      {showMenu && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setShowMenu(false)}
+        >
+          <div
+            className="glass-card p-6 max-w-sm w-full mx-4 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Botón de cerrar (X) */}
+            <button
+              onClick={() => setShowMenu(false)}
+              className="absolute top-4 right-4 p-1 hover:bg-white/10 rounded transition-colors"
+              aria-label="Cerrar menú"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Contenido del menú */}
+            <h3 className="text-xl font-bold text-white mb-6">Menú</h3>
+            <button
+              onClick={() => {
+                if (window.confirm('¿Estás seguro de que quieres abandonar la partida?')) {
+                  handleLeaveGame();
+                  setShowMenu(false);
+                }
+              }}
+              className="w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
+            >
+              Abandonar Partida
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Place Card Popup */}
       {showPlaceCardPopup && cardToPlace && (

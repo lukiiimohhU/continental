@@ -37,6 +37,15 @@ export default function LobbyPage() {
   const loadRoom = async () => {
     try {
       const response = await axios.get(`${API}/room/${roomCode}`);
+      console.log('=== DEBUG ROOM DATA ===');
+      console.log('Full room data:', JSON.stringify(response.data, null, 2));
+      console.log('Host ID from room:', response.data.host_id);
+      console.log('Player ID from localStorage:', playerId);
+      console.log('Players:', response.data.players);
+      console.log('Is host check:', response.data.host_id === playerId);
+      console.log('typeof host_id:', typeof response.data.host_id);
+      console.log('typeof playerId:', typeof playerId);
+      console.log('======================');
       setRoom(response.data);
     } catch (error) {
       console.error('Error al cargar sala:', error);
